@@ -82,7 +82,7 @@ export default function InventoryIndex({
                                         Total Quantity
                                     </th>
                                     {isAdmin && (
-                                        <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                        <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-neutral-500 uppercase">
                                             Actions
                                         </th>
                                     )}
