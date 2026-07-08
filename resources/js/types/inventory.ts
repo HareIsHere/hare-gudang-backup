@@ -56,7 +56,7 @@ export interface InventoryMutation {
     from_warehouse_id: number | null;
     to_warehouse_id: number | null;
     quantity: number;
-    type: 'IN' | 'OUT' | 'TRANSFER';
+    type: 'IN' | 'OUT' | 'TRANSFER' | 'REQUEST';
     user_id: number;
     reference_type: string | null;
     reference_id: number | null;

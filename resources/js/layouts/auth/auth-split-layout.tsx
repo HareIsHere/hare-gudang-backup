@@ -1,5 +1,4 @@
 import { Link, usePage } from '@inertiajs/react';
-import AppLogoIcon from '@/components/app-logo-icon';
 import { home } from '@/routes';
 import type { AuthLayoutProps } from '@/types';
 
@@ -16,9 +15,15 @@ export default function AuthSplitLayout({
                 <div className="absolute inset-0 bg-zinc-900" />
                 <Link
                     href={home()}
-                    className="relative z-20 flex items-center text-lg font-medium"
+                    className="relative z-20 flex items-center gap-2 text-lg font-medium"
                 >
-                    <AppLogoIcon className="mr-2 size-8 fill-current text-white" />
+                    <div className="flex size-12 items-center justify-center overflow-hidden rounded-md bg-white">
+                        <img
+                            src="/images/PTRimau.jpeg"
+                            alt="PT Rimau Logo"
+                            className="size-12 object-cover"
+                        />
+                    </div>
                     {name}
                 </Link>
             </div>
@@ -28,7 +33,13 @@ export default function AuthSplitLayout({
                         href={home()}
                         className="relative z-20 flex items-center justify-center lg:hidden"
                     >
-                        <AppLogoIcon className="h-10 fill-current text-black sm:h-12" />
+                        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-md bg-white sm:h-20 sm:w-20">
+                            <img
+                                src="/images/PTRimau.jpeg"
+                                alt="PT Rimau Logo"
+                                className="h-full w-full object-cover"
+                            />
+                        </div>
                     </Link>
                     <div className="flex flex-col items-start gap-2 text-left sm:items-center sm:text-center">
                         <h1 className="text-xl font-medium">{title}</h1>

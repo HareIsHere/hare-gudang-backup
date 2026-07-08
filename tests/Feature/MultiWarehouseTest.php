@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\Inventory;
-use App\Models\InventoryMutation;
 use App\Models\InventoryRequest;
 use App\Models\Item;
 use App\Models\User;
@@ -14,7 +13,7 @@ test('admin can fulfill an inventory request and it logs mutation', function () 
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
     $item = Item::factory()->create();
-    
+
     // Seed initial inventory
     Inventory::factory()->create([
         'item_id' => $item->item_id,
@@ -35,7 +34,7 @@ test('admin can fulfill an inventory request and it logs mutation', function () 
     ]);
 
     $response->assertRedirect();
-    
+
     // Verify stock decremented
     $this->assertDatabaseHas('inventories', [
         'item_id' => $item->item_id,
@@ -73,6 +72,13 @@ test('user can request from assigned warehouse', function () {
     $warehouse = Warehouse::factory()->create();
     $user->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
+
+    // Seed initial inventory
+    Inventory::factory()->create([
+        'item_id' => $item->item_id,
+        'warehouse_id' => $warehouse->id,
+        'quantity' => 10,
+    ]);
 
     $response = $this->actingAs($user)->post(route('requests.store'), [
         'item_id' => $item->item_id,
