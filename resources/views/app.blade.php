@@ -31,7 +31,7 @@
         </style>
 
         <link rel="icon" href="/favicon.ico?v=1" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+        <link rel="icon" href="/favicon.svg?v=1" type="image/svg+xml">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
         @fonts
