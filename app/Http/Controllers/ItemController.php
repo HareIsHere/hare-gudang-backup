@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Models\Item;
-use App\Models\Warehouse;
 use App\Models\User;
+use App\Models\Warehouse;
 use App\Services\InventoryService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,9 +14,7 @@ use Inertia\Response;
 
 class ItemController extends Controller
 {
-    public function __construct(protected InventoryService $inventoryService)
-    {
-    }
+    public function __construct(protected InventoryService $inventoryService) {}
 
     /**
      * Display a listing of the resource.
@@ -24,9 +22,9 @@ class ItemController extends Controller
     public function index(): Response
     {
         $user = auth()->user();
-        
+
         // If regular user, only show items and stock for their assigned warehouses
-        if (!$user->isAdmin()) {
+        if (! $user->isAdmin()) {
             $warehouseIds = $user->warehouses->pluck('id');
             $items = Item::whereHas('warehouses', function ($query) use ($warehouseIds) {
                 $query->whereIn('warehouses.id', $warehouseIds);
@@ -37,10 +35,17 @@ class ItemController extends Controller
             $items = Item::with('inventories.warehouse')->get();
         }
 
+        $categories = Item::whereNotNull('category')
+            ->where('category', '!=', '')
+            ->distinct()
+            ->orderBy('category')
+            ->pluck('category');
+
         return Inertia::render('inventory/index', [
             'items' => $items,
             'warehouses' => $user->isAdmin() ? Warehouse::with('users')->get() : $user->warehouses,
             'users' => $user->isAdmin() ? User::where('role', 'user')->get() : [],
+            'categories' => $categories,
         ]);
     }
 
@@ -51,6 +56,7 @@ class ItemController extends Controller
     {
         $item = Item::create([
             'item_name' => $request->item_name,
+            'category' => $request->category,
         ]);
 
         if ($request->warehouse_id && $request->initial_quantity > 0) {
@@ -75,6 +81,7 @@ class ItemController extends Controller
     {
         $item->update([
             'item_name' => $request->item_name,
+            'category' => $request->category,
         ]);
 
         if ($request->warehouse_id && $request->quantity_adjustment != 0) {
@@ -99,6 +106,22 @@ class ItemController extends Controller
         }
 
         return back()->with('success', 'Item updated successfully.');
+    }
+
+    /**
+     * Update only the category of an item.
+     */
+    public function updateCategory(Request $request, Item $item)
+    {
+        $request->validate([
+            'category' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $item->update([
+            'category' => $request->category,
+        ]);
+
+        return back()->with('success', 'Item category updated successfully.');
     }
 
     /**

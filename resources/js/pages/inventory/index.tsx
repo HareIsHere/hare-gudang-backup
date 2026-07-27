@@ -29,6 +29,8 @@ import {
     Warehouse as WarehouseIcon,
     Trash2,
     X,
+    Search,
+    Edit2,
 } from 'lucide-react';
 import type { Item, Warehouse, User } from '@/types/inventory';
 
@@ -36,14 +38,35 @@ export default function InventoryIndex({
     items,
     warehouses,
     users,
+    categories = [],
 }: {
     items: Item[];
     warehouses: Warehouse[];
     users: User[];
+    categories?: string[];
 }) {
     const { auth } = usePage().props as any;
     const user = auth.user;
     const isAdmin = user.role === 'admin';
+
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('all');
+
+    const filteredItems = items.filter((item) => {
+        const matchesSearch =
+            item.item_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (item.category &&
+                item.category
+                    .toLowerCase()
+                    .includes(searchQuery.toLowerCase()));
+
+        const matchesCategory =
+            selectedCategory === 'all' ||
+            (item.category &&
+                item.category.toLowerCase() === selectedCategory.toLowerCase());
+
+        return matchesSearch && matchesCategory;
+    });
 
     return (
         <>
@@ -62,12 +85,58 @@ export default function InventoryIndex({
                                 warehouses={warehouses}
                                 users={users}
                             />
-                            <AddItemDialog warehouses={warehouses} />
+                            <AddItemDialog
+                                warehouses={warehouses}
+                                categories={categories}
+                            />
                         </div>
                     )}
                 </div>
 
                 <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                    <div className="flex flex-col items-center justify-between gap-3 border-b border-neutral-200 bg-neutral-50/50 p-4 sm:flex-row dark:border-neutral-800 dark:bg-neutral-900/50">
+                        <div className="relative w-full sm:max-w-xs">
+                            <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-neutral-400" />
+                            <Input
+                                placeholder="Search by name or category..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="h-9 w-full bg-white pr-8 pl-9 text-sm dark:bg-neutral-950"
+                            />
+                            {searchQuery && (
+                                <button
+                                    onClick={() => setSearchQuery('')}
+                                    className="absolute top-2.5 right-2.5 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+                                >
+                                    <X className="h-4 w-4" />
+                                </button>
+                            )}
+                        </div>
+                        <div className="flex w-full items-center gap-2 sm:w-auto">
+                            <Label className="shrink-0 text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
+                                Category Filter:
+                            </Label>
+                            <Select
+                                value={selectedCategory}
+                                onValueChange={setSelectedCategory}
+                            >
+                                <SelectTrigger className="h-9 w-full bg-white text-sm sm:w-[180px] dark:bg-neutral-950">
+                                    <SelectValue placeholder="All Categories" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">
+                                        All Categories
+                                    </SelectItem>
+                                    {categories.map((cat) => (
+                                        <SelectItem key={cat} value={cat}>
+                                            {cat}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800">
                             <thead className="bg-neutral-55 dark:bg-neutral-800/50">
@@ -89,18 +158,18 @@ export default function InventoryIndex({
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-neutral-200 bg-white dark:divide-neutral-800 dark:bg-neutral-900">
-                                {items.length === 0 && (
+                                {filteredItems.length === 0 && (
                                     <tr>
                                         <td
                                             colSpan={isAdmin ? 4 : 3}
                                             className="px-6 py-12 text-center text-sm text-neutral-500 italic"
                                         >
-                                            No items found in your assigned
-                                            warehouses.
+                                            No items found matching the
+                                            criteria.
                                         </td>
                                     </tr>
                                 )}
-                                {items.map((item) => {
+                                {filteredItems.map((item) => {
                                     const totalQty =
                                         item.inventories?.reduce(
                                             (sum, inv) => sum + inv.quantity,
@@ -115,8 +184,14 @@ export default function InventoryIndex({
                                                 <div className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
                                                     {item.item_name}
                                                 </div>
-                                                <div className="text-neutral-450 text-[10px] font-medium">
-                                                    REF: #{item.item_id}
+                                                <div className="mt-1.5 flex flex-wrap items-center gap-2">
+                                                    <span className="text-neutral-450 text-[10px] font-medium">
+                                                        REF: #{item.item_id}
+                                                    </span>
+                                                    <EditCategoryDialog
+                                                        item={item}
+                                                        categories={categories}
+                                                    />
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
@@ -180,6 +255,9 @@ export default function InventoryIndex({
                                                             warehouses={
                                                                 warehouses
                                                             }
+                                                            categories={
+                                                                categories
+                                                            }
                                                         />
                                                         <DeleteItemButton
                                                             item={item}
@@ -195,14 +273,27 @@ export default function InventoryIndex({
                     </div>
                 </div>
             </div>
+
+            <datalist id="categories-list">
+                {categories.map((cat) => (
+                    <option key={cat} value={cat} />
+                ))}
+            </datalist>
         </>
     );
 }
 
-function AddItemDialog({ warehouses }: { warehouses: Warehouse[] }) {
+function AddItemDialog({
+    warehouses,
+    categories,
+}: {
+    warehouses: Warehouse[];
+    categories: string[];
+}) {
     const [open, setOpen] = useState(false);
     const { data, setData, post, processing, errors, reset } = useForm({
         item_name: '',
+        category: '',
         warehouse_id: '',
         initial_quantity: 0,
     });
@@ -247,6 +338,24 @@ function AddItemDialog({ warehouses }: { warehouses: Warehouse[] }) {
                         {errors.item_name && (
                             <p className="text-xs font-medium text-red-500">
                                 {errors.item_name}
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <Label htmlFor="category">Category</Label>
+                        <Input
+                            id="category"
+                            placeholder="e.g. Electronics, Furniture"
+                            value={data.category}
+                            onChange={(e) =>
+                                setData('category', e.target.value)
+                            }
+                            list="categories-list"
+                        />
+                        {errors.category && (
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.category}
                             </p>
                         )}
                     </div>
@@ -464,13 +573,16 @@ function ManageAccessDialog({
 function EditItemDialog({
     item,
     warehouses,
+    categories,
 }: {
     item: Item;
     warehouses: Warehouse[];
+    categories: string[];
 }) {
     const [open, setOpen] = useState(false);
     const { data, setData, patch, processing, errors, reset } = useForm({
         item_name: item.item_name,
+        category: item.category || '',
         warehouse_id: '',
         quantity_adjustment: 0,
     });
@@ -509,6 +621,23 @@ function EditItemDialog({
                         {errors.item_name && (
                             <p className="text-xs font-medium text-red-500">
                                 {errors.item_name}
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="edit_category">Category</Label>
+                        <Input
+                            id="edit_category"
+                            value={data.category}
+                            onChange={(e) =>
+                                setData('category', e.target.value)
+                            }
+                            list="categories-list"
+                        />
+                        {errors.category && (
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.category}
                             </p>
                         )}
                     </div>
@@ -761,6 +890,82 @@ function DeleteItemButton({ item }: { item: Item }) {
         >
             <Trash2 className="h-3.5 w-3.5" />
         </Button>
+    );
+}
+
+function EditCategoryDialog({
+    item,
+    categories,
+}: {
+    item: Item;
+    categories: string[];
+}) {
+    const [open, setOpen] = useState(false);
+    const { data, setData, patch, processing } = useForm({
+        category: item.category || '',
+    });
+
+    const submit = (e: React.FormEvent) => {
+        e.preventDefault();
+        patch(ItemController.updateCategory({ item: item.item_id }).url, {
+            onSuccess: () => {
+                setOpen(false);
+            },
+        });
+    };
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <button type="button" className="inline-flex items-center">
+                    {item.category ? (
+                        <Badge
+                            variant="secondary"
+                            className="h-5 cursor-pointer rounded px-1.5 py-0 text-[10px] font-normal hover:bg-neutral-200 dark:hover:bg-neutral-800"
+                        >
+                            {item.category}
+                        </Badge>
+                    ) : (
+                        <span className="cursor-pointer text-[10px] text-neutral-400 italic hover:text-neutral-900 hover:underline dark:text-neutral-500 dark:hover:text-neutral-100">
+                            + Add Category
+                        </span>
+                    )}
+                </button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[420px]">
+                <DialogHeader>
+                    <DialogTitle>Update Category</DialogTitle>
+                    <DialogDescription>
+                        Set or change the category for {item.item_name}.
+                    </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={submit} className="mt-4 space-y-4">
+                    <div className="space-y-1.5">
+                        <Label htmlFor={`cat-input-${item.item_id}`}>
+                            Category Name
+                        </Label>
+                        <Input
+                            id={`cat-input-${item.item_id}`}
+                            placeholder="e.g. Electronics, Office, etc."
+                            value={data.category}
+                            onChange={(e) =>
+                                setData('category', e.target.value)
+                            }
+                            list="categories-list"
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            className="w-full"
+                        >
+                            Save Category
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
     );
 }
 

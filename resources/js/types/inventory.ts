@@ -28,6 +28,7 @@ export interface Inventory {
 export interface Item {
     item_id: number;
     item_name: string;
+    category?: string | null;
     created_at: string;
     updated_at: string;
     inventories?: Inventory[];

@@ -18,12 +18,13 @@ class UpdateItemRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'item_name' => ['required', 'string', 'max:255'],
+            'category' => ['nullable', 'string', 'max:255'],
             'warehouse_id' => ['nullable', 'exists:warehouses,id'],
             'quantity_adjustment' => ['nullable', 'integer', 'not_in:0'],
         ];

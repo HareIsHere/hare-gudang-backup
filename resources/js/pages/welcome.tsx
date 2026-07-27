@@ -23,8 +23,8 @@ export default function Welcome() {
                 </header>
                 <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
                     <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl lg:flex-row">
-                        <div className="flex items-center justify-center lg:w-1/2 w-full rounded-br-lg rounded-bl-lg bg-white p-6 pb-12 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:rounded-tl-lg lg:rounded-br-none lg:p-20 dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]">
-                            <div className="flex gap-3 text-sm leading-normal w-full justify-center">
+                        <div className="flex w-full items-center justify-center rounded-br-lg rounded-bl-lg bg-white p-6 pb-12 text-[13px] leading-[20px] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] lg:w-1/2 lg:rounded-tl-lg lg:rounded-br-none lg:p-20 dark:bg-[#161615] dark:text-[#EDEDEC] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d]">
+                            <div className="flex w-full justify-center gap-3 text-sm leading-normal">
                                 {auth.user ? (
                                     <div className="flex flex-wrap items-center gap-3">
                                         <Link
@@ -35,16 +35,16 @@ export default function Welcome() {
                                         </Link>
                                     </div>
                                 ) : (
-                                    <div className="flex flex-col gap-3 w-full text-center">
+                                    <div className="flex w-full flex-col gap-3 text-center">
                                         <Link
                                             href={login()}
-                                            className="block w-full rounded-full border border-indigo-600 text-indigo-600 px-6 py-2.5 text-sm font-medium hover:bg-indigo-600 hover:text-white transition-colors duration-200"
+                                            className="block w-full rounded-full border border-indigo-600 px-6 py-2.5 text-sm font-medium text-indigo-600 transition-colors duration-200 hover:bg-indigo-600 hover:text-white"
                                         >
                                             Log in
                                         </Link>
                                         <Link
                                             href={register()}
-                                            className="block w-full rounded-full border border-indigo-600 text-indigo-600 px-6 py-2.5 text-sm font-medium hover:bg-indigo-600 hover:text-white transition-colors duration-200"
+                                            className="block w-full rounded-full border border-indigo-600 px-6 py-2.5 text-sm font-medium text-indigo-600 transition-colors duration-200 hover:bg-indigo-600 hover:text-white"
                                         >
                                             Register
                                         </Link>

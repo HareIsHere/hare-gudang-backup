@@ -1,0 +1,77 @@
+<?php
+
+use App\Models\Item;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+uses(RefreshDatabase::class);
+
+test('admin can set category when creating a new item', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $response = $this->actingAs($admin)->post(route('admin.items.store'), [
+        'item_name' => 'Test Laptop',
+        'category' => 'Electronics',
+    ]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseHas('items', [
+        'item_name' => 'Test Laptop',
+        'category' => 'Electronics',
+    ]);
+});
+
+test('admin can update item name and category', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $item = Item::factory()->create(['category' => 'Old Category']);
+
+    $response = $this->actingAs($admin)->patch(route('admin.items.update', $item), [
+        'item_name' => 'Updated Laptop',
+        'category' => 'Electronics',
+    ]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseHas('items', [
+        'item_id' => $item->item_id,
+        'item_name' => 'Updated Laptop',
+        'category' => 'Electronics',
+    ]);
+});
+
+test('user and admin can update category of an item', function () {
+    $user = User::factory()->create(['role' => 'user']);
+    $admin = User::factory()->create(['role' => 'admin']);
+    $item = Item::factory()->create(['category' => 'Initial Category']);
+
+    // Regular user updates category
+    $response = $this->actingAs($user)->patch(route('items.update-category', $item), [
+        'category' => 'User Updated Category',
+    ]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseHas('items', [
+        'item_id' => $item->item_id,
+        'category' => 'User Updated Category',
+    ]);
+
+    // Admin updates category
+    $response = $this->actingAs($admin)->patch(route('items.update-category', $item), [
+        'category' => 'Admin Updated Category',
+    ]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseHas('items', [
+        'item_id' => $item->item_id,
+        'category' => 'Admin Updated Category',
+    ]);
+});
+
+test('unauthenticated users cannot update category of an item', function () {
+    $item = Item::factory()->create(['category' => 'Initial Category']);
+
+    $response = $this->patch(route('items.update-category', $item), [
+        'category' => 'Guest Updated Category',
+    ]);
+
+    $response->assertRedirect(route('login'));
+});
