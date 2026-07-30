@@ -1,14 +1,9 @@
 import { Head, router, useForm } from '@inertiajs/react';
+import { Trash2, AlertCircle } from 'lucide-react';
+import { useState } from 'react';
 import * as InventoryRequestController from '@/actions/App/Http/Controllers/InventoryRequestController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import {
     Dialog,
     DialogContent,
@@ -18,10 +13,15 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { index as adminRequestsIndex } from '@/routes/admin/requests';
-import { Trash2, AlertCircle } from 'lucide-react';
-import { useState } from 'react';
 import type { InventoryRequest } from '@/types/inventory';
 
 export default function AdminRequestsIndex({

@@ -1,4 +1,5 @@
 import { Head, useForm, router } from '@inertiajs/react';
+import { X, Trash2 } from 'lucide-react';
 import * as InventoryRequestController from '@/actions/App/Http/Controllers/InventoryRequestController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { index as requestsIndex } from '@/routes/requests';
-import { X, Trash2 } from 'lucide-react';
 import type { Item, InventoryRequest, Warehouse } from '@/types/inventory';
 
 export default function RequestsIndex({
@@ -272,10 +272,14 @@ function NewRequestForm({
 
     // Get stock quantity for a specific warehouse for the selected product
     const getStockForWarehouse = (warehouseId: number) => {
-        if (!selectedItem || !selectedItem.inventories) return 0;
+        if (!selectedItem || !selectedItem.inventories) {
+return 0;
+}
+
         const inv = selectedItem.inventories.find(
             (i) => i.warehouse_id === warehouseId,
         );
+
         return inv ? inv.quantity : 0;
     };
 

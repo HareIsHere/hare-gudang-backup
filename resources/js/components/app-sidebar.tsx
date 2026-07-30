@@ -6,6 +6,7 @@ import {
     Boxes,
     ClipboardList,
     ShieldCheck,
+    Users,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -27,12 +28,13 @@ import { index as adminMutationsIndex } from '@/routes/admin/mutations';
 import { index as adminRequestsIndex } from '@/routes/admin/requests';
 import { index as inventoryIndex } from '@/routes/inventory';
 import { index as requestsIndex } from '@/routes/requests';
+import { index as superAdminUsersIndex } from '@/routes/super-admin/users';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
     const { auth } = usePage().props as any;
     const user = auth.user;
-    const isAdmin = user.role === 'admin';
+    const isAdmin = user.role === 'admin' || user.role === 'super_admin';
 
     const mainNavItems: NavItem[] = [
         {
@@ -64,6 +66,14 @@ export function AppSidebar() {
             icon: BookOpen,
         },
     ];
+
+    if (user.role === 'super_admin') {
+        adminNavItems.push({
+            title: 'Manage Users',
+            href: superAdminUsersIndex().url,
+            icon: Users,
+        });
+    }
 
     const footerNavItems: NavItem[] = [
         // {

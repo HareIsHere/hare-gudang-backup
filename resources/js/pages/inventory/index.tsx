@@ -1,7 +1,17 @@
 import { Head, usePage, useForm, router } from '@inertiajs/react';
+import {
+    Users,
+    Plus,
+    Warehouse as WarehouseIcon,
+    Trash2,
+    X,
+    Search,
+    Edit2,
+} from 'lucide-react';
 import { useState } from 'react';
 import * as ItemController from '@/actions/App/Http/Controllers/ItemController';
 import * as WarehouseController from '@/actions/App/Http/Controllers/WarehouseController';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -14,7 +24,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import {
     Select,
     SelectContent,
@@ -23,15 +32,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { index as inventoryIndex } from '@/routes/inventory';
-import {
-    Users,
-    Plus,
-    Warehouse as WarehouseIcon,
-    Trash2,
-    X,
-    Search,
-    Edit2,
-} from 'lucide-react';
 import type { Item, Warehouse, User } from '@/types/inventory';
 
 export default function InventoryIndex({
@@ -47,7 +47,7 @@ export default function InventoryIndex({
 }) {
     const { auth } = usePage().props as any;
     const user = auth.user;
-    const isAdmin = user.role === 'admin';
+    const isAdmin = user.role === 'admin' || user.role === 'super_admin';
 
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
@@ -175,6 +175,7 @@ export default function InventoryIndex({
                                             (sum, inv) => sum + inv.quantity,
                                             0,
                                         ) || 0;
+
                                     return (
                                         <tr
                                             key={item.item_id}
@@ -188,10 +189,21 @@ export default function InventoryIndex({
                                                     <span className="text-neutral-450 text-[10px] font-medium">
                                                         REF: #{item.item_id}
                                                     </span>
-                                                    <EditCategoryDialog
-                                                        item={item}
-                                                        categories={categories}
-                                                    />
+                                                    {isAdmin ? (
+                                                        <EditCategoryDialog
+                                                            item={item}
+                                                            categories={categories}
+                                                        />
+                                                    ) : (
+                                                        item.category && (
+                                                            <Badge
+                                                                variant="secondary"
+                                                                className="h-5 rounded px-1.5 py-0 text-[10px] font-normal"
+                                                            >
+                                                                {item.category}
+                                                            </Badge>
+                                                        )
+                                                    )}
                                                 </div>
                                             </td>
                                             <td className="px-6 py-4">
@@ -344,20 +356,13 @@ function AddItemDialog({
 
                     <div className="space-y-1.5">
                         <Label htmlFor="category">Category</Label>
-                        <Input
+                        <CategoryInput
                             id="category"
-                            placeholder="e.g. Electronics, Furniture"
                             value={data.category}
-                            onChange={(e) =>
-                                setData('category', e.target.value)
-                            }
-                            list="categories-list"
+                            onChange={(val) => setData('category', val)}
+                            categories={categories}
+                            error={errors.category}
                         />
-                        {errors.category && (
-                            <p className="text-xs font-medium text-red-500">
-                                {errors.category}
-                            </p>
-                        )}
                     </div>
 
                     <div className="space-y-4 rounded-lg border border-neutral-100 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-800/50">
@@ -366,26 +371,13 @@ function AddItemDialog({
                         </div>
                         <div className="space-y-1.5">
                             <Label htmlFor="warehouse_id">Warehouse</Label>
-                            <Select
+                            <WarehouseInput
+                                id="warehouse_id"
                                 value={data.warehouse_id}
-                                onValueChange={(val) =>
-                                    setData('warehouse_id', val)
-                                }
-                            >
-                                <SelectTrigger className="bg-white dark:bg-neutral-900">
-                                    <SelectValue placeholder="Select warehouse" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {warehouses.map((w) => (
-                                        <SelectItem
-                                            key={w.id}
-                                            value={w.id.toString()}
-                                        >
-                                            {w.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                                onChange={(val) => setData('warehouse_id', val)}
+                                warehouses={warehouses}
+                                error={errors.warehouse_id}
+                            />
                         </div>
                         <div className="space-y-1.5">
                             <Label htmlFor="initial_quantity">Quantity</Label>
@@ -627,19 +619,13 @@ function EditItemDialog({
 
                     <div className="space-y-2">
                         <Label htmlFor="edit_category">Category</Label>
-                        <Input
+                        <CategoryInput
                             id="edit_category"
                             value={data.category}
-                            onChange={(e) =>
-                                setData('category', e.target.value)
-                            }
-                            list="categories-list"
+                            onChange={(val) => setData('category', val)}
+                            categories={categories}
+                            error={errors.category}
                         />
-                        {errors.category && (
-                            <p className="text-xs font-medium text-red-500">
-                                {errors.category}
-                            </p>
-                        )}
                     </div>
 
                     <div className="space-y-4 rounded-lg border border-neutral-100 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-800/50">
@@ -700,7 +686,18 @@ function EditItemDialog({
                         </div>
                     </div>
 
-                    <div className="flex justify-end pt-4">
+                    <div className="flex justify-end gap-2 pt-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                                setOpen(false);
+                                reset();
+                            }}
+                            className="w-full sm:w-auto"
+                        >
+                            Cancel
+                        </Button>
                         <Button
                             type="submit"
                             disabled={processing}
@@ -944,14 +941,11 @@ function EditCategoryDialog({
                         <Label htmlFor={`cat-input-${item.item_id}`}>
                             Category Name
                         </Label>
-                        <Input
+                        <CategoryInput
                             id={`cat-input-${item.item_id}`}
-                            placeholder="e.g. Electronics, Office, etc."
                             value={data.category}
-                            onChange={(e) =>
-                                setData('category', e.target.value)
-                            }
-                            list="categories-list"
+                            onChange={(val) => setData('category', val)}
+                            categories={categories}
                         />
                     </div>
                     <DialogFooter>
@@ -966,6 +960,254 @@ function EditCategoryDialog({
                 </form>
             </DialogContent>
         </Dialog>
+    );
+}
+
+function CategoryInput({
+    id,
+    value,
+    onChange,
+    categories,
+    error,
+}: {
+    id: string;
+    value: string;
+    onChange: (val: string) => void;
+    categories: string[];
+    error?: string;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(-1);
+
+    const filtered = categories.filter((cat) =>
+        cat.toLowerCase().includes(value.toLowerCase())
+    );
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActiveIndex((prev) => {
+                if (!filtered.length) {
+return -1;
+}
+
+                return (prev + 1) % filtered.length;
+            });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActiveIndex((prev) => {
+                if (!filtered.length) {
+return -1;
+}
+
+                if (prev <= 0) {
+return filtered.length - 1;
+}
+
+                return prev - 1;
+            });
+        } else if (e.key === 'Tab') {
+            if (isOpen && filtered.length > 0) {
+                e.preventDefault();
+                setActiveIndex((prev) => {
+                    if (e.shiftKey) {
+                        if (prev <= 0) {
+return filtered.length - 1;
+}
+
+                        return prev - 1;
+                    } else {
+                        return (prev + 1) % filtered.length;
+                    }
+                });
+            }
+        } else if (e.key === 'Enter') {
+            if (isOpen && filtered.length > 0 && activeIndex >= 0 && activeIndex < filtered.length) {
+                e.preventDefault();
+                onChange(filtered[activeIndex]);
+                setIsOpen(false);
+            }
+        } else if (e.key === 'Escape') {
+            setIsOpen(false);
+        }
+    };
+
+    return (
+        <div className="relative">
+            <Input
+                id={id}
+                placeholder="e.g. Electronics, Furniture"
+                value={value}
+                onChange={(e) => {
+                    onChange(e.target.value);
+                    setIsOpen(true);
+                    setActiveIndex(-1);
+                }}
+                onFocus={() => {
+                    setIsOpen(true);
+                    setActiveIndex(-1);
+                }}
+                onBlur={() => {
+                    setTimeout(() => setIsOpen(false), 150);
+                }}
+                onKeyDown={handleKeyDown}
+                autoComplete="off"
+            />
+            {isOpen && filtered.length > 0 && (
+                <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-neutral-200 bg-white p-1 shadow-md dark:border-neutral-800 dark:bg-neutral-900">
+                    {filtered.map((cat, idx) => (
+                        <div
+                            key={cat}
+                            className={`cursor-pointer rounded-sm px-2.5 py-1.5 text-sm transition-colors ${
+                                idx === activeIndex
+                                    ? 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-50'
+                                    : 'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-800/50'
+                            }`}
+                            onMouseDown={(e) => {
+                                e.preventDefault();
+                                onChange(cat);
+                                setIsOpen(false);
+                            }}
+                        >
+                            {cat}
+                        </div>
+                    ))}
+                </div>
+            )}
+            {error && (
+                <p className="mt-1.5 text-xs font-medium text-red-500">
+                    {error}
+                </p>
+            )}
+        </div>
+    );
+}
+
+function WarehouseInput({
+    id,
+    value,
+    onChange,
+    warehouses,
+    error,
+}: {
+    id: string;
+    value: string;
+    onChange: (val: string) => void;
+    warehouses: Warehouse[];
+    error?: string;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [activeIndex, setActiveIndex] = useState(-1);
+
+    const selectedWarehouse = warehouses.find((w) => w.id.toString() === value);
+    const displayValue = isOpen ? searchQuery : (selectedWarehouse?.name || '');
+
+    const filtered = searchQuery === (selectedWarehouse?.name || '')
+        ? warehouses
+        : warehouses.filter((w) =>
+            w.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActiveIndex((prev) => {
+                if (!filtered.length) {
+return -1;
+}
+
+                return (prev + 1) % filtered.length;
+            });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActiveIndex((prev) => {
+                if (!filtered.length) {
+return -1;
+}
+
+                if (prev <= 0) {
+return filtered.length - 1;
+}
+
+                return prev - 1;
+            });
+        } else if (e.key === 'Tab') {
+            if (isOpen && filtered.length > 0) {
+                e.preventDefault();
+                setActiveIndex((prev) => {
+                    if (e.shiftKey) {
+                        if (prev <= 0) {
+return filtered.length - 1;
+}
+
+                        return prev - 1;
+                    } else {
+                        return (prev + 1) % filtered.length;
+                    }
+                });
+            }
+        } else if (e.key === 'Enter') {
+            if (isOpen && filtered.length > 0 && activeIndex >= 0 && activeIndex < filtered.length) {
+                e.preventDefault();
+                onChange(filtered[activeIndex].id.toString());
+                setIsOpen(false);
+            }
+        } else if (e.key === 'Escape') {
+            setIsOpen(false);
+        }
+    };
+
+    return (
+        <div className="relative">
+            <Input
+                id={id}
+                placeholder="Select warehouse"
+                value={displayValue}
+                onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setIsOpen(true);
+                    setActiveIndex(-1);
+                }}
+                onFocus={() => {
+                    setSearchQuery(selectedWarehouse?.name || '');
+                    setIsOpen(true);
+                    setActiveIndex(-1);
+                }}
+                onBlur={() => {
+                    setTimeout(() => setIsOpen(false), 150);
+                }}
+                onKeyDown={handleKeyDown}
+                autoComplete="off"
+                className="bg-white dark:bg-neutral-900"
+            />
+            {isOpen && filtered.length > 0 && (
+                <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-neutral-200 bg-white p-1 shadow-md dark:border-neutral-800 dark:bg-neutral-900">
+                    {filtered.map((w, idx) => (
+                        <div
+                            key={w.id}
+                            className={`cursor-pointer rounded-sm px-2.5 py-1.5 text-sm transition-colors ${
+                                idx === activeIndex
+                                    ? 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-50'
+                                    : 'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-800/50'
+                            }`}
+                            onMouseDown={(e) => {
+                                e.preventDefault();
+                                onChange(w.id.toString());
+                                setIsOpen(false);
+                            }}
+                        >
+                            {w.name}
+                        </div>
+                    ))}
+                </div>
+            )}
+            {error && (
+                <p className="mt-1.5 text-xs font-medium text-red-500">
+                    {error}
+                </p>
+            )}
+        </div>
     );
 }
 

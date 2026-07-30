@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Inventory;
 use App\Models\Item;
 use App\Models\User;
 use App\Models\Warehouse;
-use App\Models\Inventory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -38,6 +38,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // 2. Create Users
+        $superAdmin = User::factory()->create([
+            'name' => 'Super Admin',
+            'email' => 'superadmin@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'super_admin',
+        ]);
+
         $admin = User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
@@ -85,7 +92,7 @@ class DatabaseSeeder extends Seeder
             'warehouse_id' => $oceanWarehouse->id,
             'quantity' => 45,
         ]);
-        
+
         Inventory::create([
             'item_id' => $injector->item_id,
             'warehouse_id' => $pacificWarehouse->id,

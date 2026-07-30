@@ -38,24 +38,11 @@ test('admin can update item name and category', function () {
     ]);
 });
 
-test('user and admin can update category of an item', function () {
-    $user = User::factory()->create(['role' => 'user']);
+test('admin can update category of an item', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $item = Item::factory()->create(['category' => 'Initial Category']);
 
-    // Regular user updates category
-    $response = $this->actingAs($user)->patch(route('items.update-category', $item), [
-        'category' => 'User Updated Category',
-    ]);
-
-    $response->assertRedirect();
-    $this->assertDatabaseHas('items', [
-        'item_id' => $item->item_id,
-        'category' => 'User Updated Category',
-    ]);
-
-    // Admin updates category
-    $response = $this->actingAs($admin)->patch(route('items.update-category', $item), [
+    $response = $this->actingAs($admin)->patch(route('admin.items.update-category', $item), [
         'category' => 'Admin Updated Category',
     ]);
 
@@ -66,10 +53,40 @@ test('user and admin can update category of an item', function () {
     ]);
 });
 
+test('super admin can update category of an item', function () {
+    $superAdmin = User::factory()->create(['role' => 'super_admin']);
+    $item = Item::factory()->create(['category' => 'Initial Category']);
+
+    $response = $this->actingAs($superAdmin)->patch(route('admin.items.update-category', $item), [
+        'category' => 'SuperAdmin Updated Category',
+    ]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseHas('items', [
+        'item_id' => $item->item_id,
+        'category' => 'SuperAdmin Updated Category',
+    ]);
+});
+
+test('regular user cannot update category of an item', function () {
+    $user = User::factory()->create(['role' => 'user']);
+    $item = Item::factory()->create(['category' => 'Initial Category']);
+
+    $response = $this->actingAs($user)->patch(route('admin.items.update-category', $item), [
+        'category' => 'User Updated Category',
+    ]);
+
+    $response->assertForbidden();
+    $this->assertDatabaseHas('items', [
+        'item_id' => $item->item_id,
+        'category' => 'Initial Category',
+    ]);
+});
+
 test('unauthenticated users cannot update category of an item', function () {
     $item = Item::factory()->create(['category' => 'Initial Category']);
 
-    $response = $this->patch(route('items.update-category', $item), [
+    $response = $this->patch(route('admin.items.update-category', $item), [
         'category' => 'Guest Updated Category',
     ]);
 

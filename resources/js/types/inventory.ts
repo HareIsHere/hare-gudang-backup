@@ -2,7 +2,7 @@ export interface User {
     id: number;
     name: string;
     email: string;
-    role: 'admin' | 'user';
+    role: 'super_admin' | 'admin' | 'user';
 }
 
 export interface Warehouse {

@@ -3,6 +3,7 @@
 use App\Http\Controllers\InventoryMutationController;
 use App\Http\Controllers\InventoryRequestController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\SuperAdminUserController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,7 +14,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Inventory listing for everyone
     Route::get('/inventory', [ItemController::class, 'index'])->name('inventory.index');
-    Route::patch('/items/{item}/category', [ItemController::class, 'updateCategory'])->name('items.update-category');
 
     // User request routes
     Route::get('/requests', [InventoryRequestController::class, 'index'])->name('requests.index');
@@ -25,6 +25,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::post('/items', [ItemController::class, 'store'])->name('items.store');
         Route::patch('/items/{item}', [ItemController::class, 'update'])->name('items.update');
+        Route::patch('/items/{item}/category', [ItemController::class, 'updateCategory'])->name('items.update-category');
         Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
 
         Route::get('/requests', [InventoryRequestController::class, 'adminIndex'])->name('requests.index');
@@ -37,6 +38,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/warehouses/remove-user', [WarehouseController::class, 'removeUser'])->name('warehouses.remove-user');
         Route::post('/warehouses', [WarehouseController::class, 'store'])->name('warehouses.store');
         Route::delete('/warehouses/{warehouse}', [WarehouseController::class, 'destroy'])->name('warehouses.destroy');
+    });
+
+    // Super Admin routes
+    Route::middleware(['super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
+        Route::get('/users', [SuperAdminUserController::class, 'index'])->name('users.index');
+        Route::patch('/users/{user}/promote', [SuperAdminUserController::class, 'promote'])->name('users.promote');
+        Route::patch('/users/{user}/demote', [SuperAdminUserController::class, 'demote'])->name('users.demote');
     });
 });
 
