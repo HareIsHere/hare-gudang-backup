@@ -70,9 +70,6 @@ export default function SuperAdminUsersIndex({
                     <h1 className="text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50">
                         Manage Users
                     </h1>
-                    <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                        Promote regular users to Admin or demote Admins back to regular users.
-                    </p>
                 </div>
 
                 <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
