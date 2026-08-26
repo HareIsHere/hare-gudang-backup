@@ -32,10 +32,10 @@ class DashboardController extends Controller
             'status' => ['required', 'string', 'in:Idle,Working'],
         ]);
 
-        $pipeline = DashboardPipeline::where('activity_id', $request->activity_id)->firstOrFail();
-        $pipeline->update([
-            'status' => $request->status,
-        ]);
+        DashboardPipeline::updateOrCreate(
+            ['activity_id' => $request->activity_id],
+            ['status' => $request->status]
+        );
 
         return redirect()->back();
     }
@@ -55,7 +55,10 @@ class DashboardController extends Controller
             'message' => ['required', 'string', 'max:1000'],
         ]);
 
-        $pipeline = DashboardPipeline::where('activity_id', $request->activity_id)->firstOrFail();
+        $pipeline = DashboardPipeline::firstOrCreate(
+            ['activity_id' => $request->activity_id],
+            ['status' => $request->status, 'custom_messages' => []]
+        );
 
         $messages = $pipeline->custom_messages ?? [];
         $messages[$request->status] = $request->message;
