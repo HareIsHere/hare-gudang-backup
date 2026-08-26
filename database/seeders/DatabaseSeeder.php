@@ -98,5 +98,7 @@ class DatabaseSeeder extends Seeder
             'warehouse_id' => $pacificWarehouse->id,
             'quantity' => 15,
         ]);
+
+        $this->call(DashboardPipelineSeeder::class);
     }
 }

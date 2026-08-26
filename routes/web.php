@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InventoryMutationController;
 use App\Http\Controllers\InventoryRequestController;
 use App\Http\Controllers\ItemController;
@@ -10,7 +11,10 @@ use Illuminate\Support\Facades\Route;
 Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::patch('dashboard/status', [DashboardController::class, 'updateStatus'])->name('dashboard.update-status');
+    Route::post('dashboard/message', [DashboardController::class, 'updateMessage'])->name('dashboard.update-message');
+    Route::post('dashboard/reset', [DashboardController::class, 'resetMessages'])->name('dashboard.reset-messages');
 
     // Inventory listing for everyone
     Route::get('/inventory', [ItemController::class, 'index'])->name('inventory.index');
