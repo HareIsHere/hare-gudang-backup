@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use Database\Factories\InventoryRequestFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'item_id', 'warehouse_id', 'qty', 'status', 'type', 'reason'])]
+#[Fillable(['user_id', 'item_id', 'warehouse_id', 'project_id', 'worksite_id', 'qty', 'status', 'type', 'reason'])]
 class InventoryRequest extends Model
 {
-    /** @use HasFactory<\Database\Factories\InventoryRequestFactory> */
+    /** @use HasFactory<InventoryRequestFactory> */
     use HasFactory;
 
     public function user(): BelongsTo
@@ -26,5 +27,15 @@ class InventoryRequest extends Model
     public function warehouse(): BelongsTo
     {
         return $this->belongsTo(Warehouse::class);
+    }
+
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    public function worksite(): BelongsTo
+    {
+        return $this->belongsTo(Worksite::class);
     }
 }

@@ -1,12 +1,18 @@
 import { Link, usePage } from '@inertiajs/react';
 import {
     BookOpen,
-    FolderGit2,
     LayoutGrid,
     Boxes,
     ClipboardList,
     ShieldCheck,
     Users,
+    HardHat,
+    FolderKanban,
+    Package,
+    Tag,
+    Layers,
+    Database,
+    Cpu,
 } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
@@ -20,13 +26,17 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarGroup,
-    SidebarGroupLabel,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as adminMutationsIndex } from '@/routes/admin/mutations';
 import { index as adminRequestsIndex } from '@/routes/admin/requests';
 import { index as inventoryIndex } from '@/routes/inventory';
+import { index as pricesIndex } from '@/routes/master/prices';
+import { index as productsIndex } from '@/routes/master/products/data';
+import { index as productSpecificationsIndex } from '@/routes/master/products/specifications';
+import { index as projectsIndex } from '@/routes/master/projects/data';
+import { index as worksiteCategoriesIndex } from '@/routes/master/worksites/categories';
+import { index as worksitesIndex } from '@/routes/master/worksites/data';
 import { index as requestsIndex } from '@/routes/requests';
 import { index as superAdminUsersIndex } from '@/routes/super-admin/users';
 import type { NavItem } from '@/types';
@@ -54,6 +64,60 @@ export function AppSidebar() {
         },
     ];
 
+    const masterNavItems: NavItem[] = [
+        {
+            title: 'Worksite',
+            href: worksiteCategoriesIndex().url,
+            icon: HardHat,
+            items: [
+                {
+                    title: 'Categories',
+                    href: worksiteCategoriesIndex().url,
+                    icon: Layers,
+                },
+                {
+                    title: 'Data',
+                    href: worksitesIndex().url,
+                    icon: Database,
+                },
+            ],
+        },
+        {
+            title: 'Projects',
+            href: projectsIndex().url,
+            icon: FolderKanban,
+            items: [
+                {
+                    title: 'Data',
+                    href: projectsIndex().url,
+                    icon: Database,
+                },
+            ],
+        },
+        {
+            title: 'Products',
+            href: productsIndex().url,
+            icon: Package,
+            items: [
+                {
+                    title: 'Data',
+                    href: productsIndex().url,
+                    icon: Database,
+                },
+                {
+                    title: 'Specification',
+                    href: productSpecificationsIndex().url,
+                    icon: Cpu,
+                },
+            ],
+        },
+        {
+            title: 'Prices',
+            href: pricesIndex().url,
+            icon: Tag,
+        },
+    ];
+
     const adminNavItems: NavItem[] = [
         {
             title: 'Manage Requests',
@@ -75,18 +139,7 @@ export function AppSidebar() {
         });
     }
 
-    const footerNavItems: NavItem[] = [
-        // {
-        //     title: 'Repository',
-        //     href: 'https://github.com/laravel/react-starter-kit',
-        //     icon: FolderGit2,
-        // },
-        // {
-        //     title: 'Documentation',
-        //     href: 'https://laravel.com/docs/starter-kits#react',
-        //     icon: BookOpen,
-        // },
-    ];
+    const footerNavItems: NavItem[] = [];
 
     return (
         <Sidebar collapsible="icon" variant="inset">
@@ -103,12 +156,10 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={mainNavItems} label="Platform" />
+                <NavMain items={masterNavItems} label="Feature Master" />
                 {isAdmin && (
-                    <SidebarGroup>
-                        <SidebarGroupLabel>Admin</SidebarGroupLabel>
-                        <NavMain items={adminNavItems} />
-                    </SidebarGroup>
+                    <NavMain items={adminNavItems} label="Admin" />
                 )}
             </SidebarContent>
 

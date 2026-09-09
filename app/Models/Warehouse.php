@@ -2,17 +2,24 @@
 
 namespace App\Models;
 
+use Database\Factories\WarehouseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'location'])]
+#[Fillable(['name', 'location', 'worksite_id'])]
 class Warehouse extends Model
 {
-    /** @use HasFactory<\Database\Factories\WarehouseFactory> */
+    /** @use HasFactory<WarehouseFactory> */
     use HasFactory;
+
+    public function worksite(): BelongsTo
+    {
+        return $this->belongsTo(Worksite::class, 'worksite_id');
+    }
 
     public function users(): BelongsToMany
     {

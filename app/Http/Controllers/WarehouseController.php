@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Warehouse;
 use App\Models\User;
+use App\Models\Warehouse;
+use App\Models\Worksite;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -15,13 +16,27 @@ class WarehouseController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:warehouses,name',
+            'name' => 'required_without:worksite_id|nullable|string|max:255|unique:warehouses,name',
             'location' => 'nullable|string|max:255',
+            'worksite_id' => 'nullable|exists:worksites,id',
         ]);
 
+        $name = $request->name;
+        $location = $request->location;
+        $worksiteId = $request->worksite_id;
+
+        if ($worksiteId) {
+            $worksite = Worksite::find($worksiteId);
+            if ($worksite) {
+                $name = $name ?: $worksite->name;
+                $location = $location ?: ($worksite->address ?: $worksite->name);
+            }
+        }
+
         $warehouse = Warehouse::create([
-            'name' => $request->name,
-            'location' => $request->location,
+            'worksite_id' => $worksiteId,
+            'name' => $name,
+            'location' => $location,
         ]);
 
         Inertia::flash('toast', [
@@ -86,9 +101,9 @@ class WarehouseController extends Controller
 
         Inertia::flash('toast', [
             'type' => 'success',
-            'message' => "User access removed.",
+            'message' => 'User access removed.',
         ]);
 
-        return back()->with('success', "User access removed.");
+        return back()->with('success', 'User access removed.');
     }
 }

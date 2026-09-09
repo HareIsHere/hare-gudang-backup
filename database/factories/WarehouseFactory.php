@@ -6,7 +6,7 @@ use App\Models\Warehouse;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Warehouse>
+ * @extends Factory<Warehouse>
  */
 class WarehouseFactory extends Factory
 {
@@ -18,7 +18,7 @@ class WarehouseFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->company() . ' Warehouse',
+            'name' => $this->faker->company().' Warehouse',
             'location' => $this->faker->address(),
         ];
     }

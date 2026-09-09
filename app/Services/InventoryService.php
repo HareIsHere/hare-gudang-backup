@@ -5,8 +5,8 @@ namespace App\Services;
 use App\Models\Inventory;
 use App\Models\InventoryMutation;
 use App\Models\Item;
-use App\Models\Warehouse;
 use App\Models\User;
+use App\Models\Warehouse;
 use Illuminate\Support\Facades\DB;
 
 class InventoryService
@@ -63,8 +63,8 @@ class InventoryService
         int $quantity,
         User $user
     ): void {
-        if (!$user->isAdmin()) {
-            throw new \Exception("Only admins can perform inter-warehouse transfers.");
+        if (! $user->isAdmin()) {
+            throw new \Exception('Only admins can perform inter-warehouse transfers.');
         }
 
         DB::transaction(function () use ($item, $fromWarehouse, $toWarehouse, $quantity, $user) {
@@ -93,15 +93,15 @@ class InventoryService
                 $fromWarehouse,
                 $toWarehouse
             );
-            
-            // Note: adjustStock logs individual IN/OUT. 
-            // We might want a specific TRANSFER log entry instead of two, 
+
+            // Note: adjustStock logs individual IN/OUT.
+            // We might want a specific TRANSFER log entry instead of two,
             // but the current schema supports from/to in a single entry.
-            // Let's refine adjustStock to NOT log if it's part of a transfer, 
+            // Let's refine adjustStock to NOT log if it's part of a transfer,
             // OR log a single TRANSFER entry.
         });
     }
-    
+
     /**
      * Refined adjustStock to handle single mutation log entry.
      */

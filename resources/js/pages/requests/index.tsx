@@ -14,15 +14,20 @@ import {
 } from '@/components/ui/select';
 import { index as requestsIndex } from '@/routes/requests';
 import type { Item, InventoryRequest, Warehouse } from '@/types/inventory';
+import type { Project, Worksite } from '@/types/master';
 
 export default function RequestsIndex({
     requests,
     items,
     warehouses,
+    projects = [],
+    worksites = [],
 }: {
     requests: InventoryRequest[];
     items: Item[];
     warehouses: Warehouse[];
+    projects?: Project[];
+    worksites?: Worksite[];
 }) {
     const handleDelete = (id: number) => {
         if (
@@ -70,7 +75,7 @@ export default function RequestsIndex({
                                     <thead className="bg-neutral-50 dark:bg-neutral-800/50">
                                         <tr>
                                             <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
-                                                Item
+                                                Item & Destination
                                             </th>
                                             <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
                                                 Warehouse
@@ -109,10 +114,28 @@ export default function RequestsIndex({
                                                                 ?.item_name
                                                         }
                                                     </div>
-                                                    <div className="text-[10px] text-neutral-500">
-                                                        {new Date(
-                                                            request.created_at,
-                                                        ).toLocaleDateString()}
+                                                    <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                                                        <span className="text-[10px] text-neutral-500">
+                                                            {new Date(
+                                                                request.created_at,
+                                                            ).toLocaleDateString()}
+                                                        </span>
+                                                        {request.project && (
+                                                            <Badge
+                                                                variant="outline"
+                                                                className="h-4 border-purple-200 bg-purple-50 px-1 text-[9px] font-normal text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-300"
+                                                            >
+                                                                Project: {request.project.name}
+                                                            </Badge>
+                                                        )}
+                                                        {request.worksite && (
+                                                            <Badge
+                                                                variant="outline"
+                                                                className="h-4 border-indigo-200 bg-indigo-50 px-1 text-[9px] font-normal text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-300"
+                                                            >
+                                                                Site: {request.worksite.name}
+                                                            </Badge>
+                                                        )}
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-600 dark:text-neutral-400">
@@ -233,6 +256,8 @@ export default function RequestsIndex({
                             <NewRequestForm
                                 items={items}
                                 warehouses={warehouses}
+                                projects={projects}
+                                worksites={worksites}
                             />
                         </div>
                     </div>
@@ -245,13 +270,19 @@ export default function RequestsIndex({
 function NewRequestForm({
     items,
     warehouses,
+    projects = [],
+    worksites = [],
 }: {
     items: Item[];
     warehouses: Warehouse[];
+    projects?: Project[];
+    worksites?: Worksite[];
 }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         item_id: '',
         warehouse_id: '',
+        project_id: '',
+        worksite_id: '',
         qty: 1,
     });
 
@@ -273,8 +304,8 @@ function NewRequestForm({
     // Get stock quantity for a specific warehouse for the selected product
     const getStockForWarehouse = (warehouseId: number) => {
         if (!selectedItem || !selectedItem.inventories) {
-return 0;
-}
+            return 0;
+        }
 
         const inv = selectedItem.inventories.find(
             (i) => i.warehouse_id === warehouseId,
@@ -345,6 +376,9 @@ return 0;
                                 value={item.item_id.toString()}
                             >
                                 {item.item_name}
+                                {item.specification
+                                    ? ` (${item.specification.name})`
+                                    : ''}
                             </SelectItem>
                         ))}
                     </SelectContent>
@@ -355,6 +389,68 @@ return 0;
                     </p>
                 )}
             </div>
+
+            {projects.length > 0 && (
+                <div className="space-y-2">
+                    <Label htmlFor="project_id">
+                        Project (Master Reference - Optional)
+                    </Label>
+                    <Select
+                        value={data.project_id}
+                        onValueChange={(val) =>
+                            setData(
+                                'project_id',
+                                val === '__none__' ? '' : val,
+                            )
+                        }
+                    >
+                        <SelectTrigger id="project_id" className="rounded-lg">
+                            <SelectValue placeholder="Select a project..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__none__">
+                                None / General Operations
+                            </SelectItem>
+                            {projects.map((p) => (
+                                <SelectItem key={p.id} value={p.id.toString()}>
+                                    {p.name} ({p.group})
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
+
+            {worksites.length > 0 && (
+                <div className="space-y-2">
+                    <Label htmlFor="worksite_id">
+                        Destination Worksite (Optional)
+                    </Label>
+                    <Select
+                        value={data.worksite_id}
+                        onValueChange={(val) =>
+                            setData(
+                                'worksite_id',
+                                val === '__none__' ? '' : val,
+                            )
+                        }
+                    >
+                        <SelectTrigger id="worksite_id" className="rounded-lg">
+                            <SelectValue placeholder="Select destination worksite..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="__none__">
+                                None / Unspecified
+                            </SelectItem>
+                            {worksites.map((w) => (
+                                <SelectItem key={w.id} value={w.id.toString()}>
+                                    {w.name} ({w.group})
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
 
             <div className="space-y-2">
                 <Label htmlFor="warehouse_id">Warehouse Source</Label>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Inventory;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -23,13 +24,15 @@ class StoreInventoryRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
             'item_id' => ['required', 'exists:items,item_id'],
             'warehouse_id' => ['required', 'exists:warehouses,id'],
+            'project_id' => ['nullable', 'exists:projects,id'],
+            'worksite_id' => ['nullable', 'exists:worksites,id'],
             'qty' => ['required', 'integer', 'min:1'],
         ];
     }
@@ -45,11 +48,11 @@ class StoreInventoryRequest extends FormRequest
             $qty = $this->input('qty');
 
             if ($itemId && $warehouseId) {
-                $inventory = \App\Models\Inventory::where('item_id', $itemId)
+                $inventory = Inventory::where('item_id', $itemId)
                     ->where('warehouse_id', $warehouseId)
                     ->first();
 
-                if (!$inventory || $inventory->quantity <= 0) {
+                if (! $inventory || $inventory->quantity <= 0) {
                     $validator->errors()->add('item_id', 'This product is not available in the selected warehouse.');
                 } elseif ($qty && $qty > $inventory->quantity) {
                     $validator->errors()->add('qty', "Requested quantity exceeds available stock ({$inventory->quantity} available).");

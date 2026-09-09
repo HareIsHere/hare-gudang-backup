@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Models\Item;
+use App\Models\Product;
 use App\Models\User;
 use App\Models\Warehouse;
+use App\Models\Worksite;
 use App\Services\InventoryService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -28,24 +30,34 @@ class ItemController extends Controller
             $warehouseIds = $user->warehouses->pluck('id');
             $items = Item::whereHas('warehouses', function ($query) use ($warehouseIds) {
                 $query->whereIn('warehouses.id', $warehouseIds);
-            })->with(['inventories' => function ($query) use ($warehouseIds) {
+            })->with(['product', 'specification', 'inventories' => function ($query) use ($warehouseIds) {
                 $query->whereIn('warehouse_id', $warehouseIds);
-            }, 'inventories.warehouse'])->get();
+            }, 'inventories.warehouse.worksite'])->get();
         } else {
-            $items = Item::with('inventories.warehouse')->get();
+            $items = Item::with(['product', 'specification', 'inventories.warehouse.worksite'])->get();
         }
 
-        $categories = Item::whereNotNull('category')
+        $categories = Product::whereNotNull('category')
             ->where('category', '!=', '')
             ->distinct()
-            ->orderBy('category')
-            ->pluck('category');
+            ->pluck('category')
+            ->merge(
+                Item::whereNotNull('category')
+                    ->where('category', '!=', '')
+                    ->distinct()
+                    ->pluck('category')
+            )
+            ->unique()
+            ->sort()
+            ->values();
 
         return Inertia::render('inventory/index', [
             'items' => $items,
-            'warehouses' => $user->isAdmin() ? Warehouse::with('users')->get() : $user->warehouses,
+            'warehouses' => $user->isAdmin() ? Warehouse::with(['users', 'worksite'])->get() : $user->warehouses()->with('worksite')->get(),
             'users' => $user->isAdmin() ? User::where('role', 'user')->get() : [],
             'categories' => $categories,
+            'masterProducts' => Product::with('specifications')->where('stage', '!=', 'Drop')->orderBy('name')->get(),
+            'masterWorksites' => Worksite::where('stage', '!=', 'Drop')->orderBy('name')->get(),
         ]);
     }
 
@@ -54,9 +66,33 @@ class ItemController extends Controller
      */
     public function store(StoreItemRequest $request)
     {
+        $productId = $request->product_id;
+        $specificationId = $request->product_specification_id;
+        $itemName = $request->item_name;
+        $category = $request->category;
+
+        if ($productId) {
+            $product = Product::findOrFail($productId);
+            $itemName = $itemName ?: $product->name;
+            $category = $category ?: $product->category;
+        } elseif ($itemName) {
+            $product = Product::firstOrCreate(
+                ['name' => $itemName],
+                [
+                    'group' => 'Inventory',
+                    'category' => $category ?: 'General',
+                    'stage' => 'Ready',
+                ]
+            );
+            $productId = $product->id;
+            $category = $category ?: $product->category;
+        }
+
         $item = Item::create([
-            'item_name' => $request->item_name,
-            'category' => $request->category,
+            'product_id' => $productId,
+            'product_specification_id' => $specificationId,
+            'item_name' => $itemName,
+            'category' => $category,
         ]);
 
         if ($request->warehouse_id && $request->initial_quantity > 0) {
@@ -79,9 +115,24 @@ class ItemController extends Controller
      */
     public function update(UpdateItemRequest $request, Item $item)
     {
+        $productId = $request->has('product_id') ? $request->product_id : $item->product_id;
+        $specificationId = $request->has('product_specification_id') ? $request->product_specification_id : $item->product_specification_id;
+        $itemName = $request->item_name ?: $item->item_name;
+        $category = $request->category ?: $item->category;
+
+        if ($request->filled('product_id')) {
+            $product = Product::find($request->product_id);
+            if ($product) {
+                $itemName = $request->item_name ?: $product->name;
+                $category = $request->category ?: $product->category;
+            }
+        }
+
         $item->update([
-            'item_name' => $request->item_name,
-            'category' => $request->category,
+            'product_id' => $productId,
+            'product_specification_id' => $specificationId,
+            'item_name' => $itemName,
+            'category' => $category,
         ]);
 
         if ($request->warehouse_id && $request->quantity_adjustment != 0) {

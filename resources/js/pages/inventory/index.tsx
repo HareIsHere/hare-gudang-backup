@@ -6,7 +6,6 @@ import {
     Trash2,
     X,
     Search,
-    Edit2,
 } from 'lucide-react';
 import { useState } from 'react';
 import * as ItemController from '@/actions/App/Http/Controllers/ItemController';
@@ -33,17 +32,22 @@ import {
 } from '@/components/ui/select';
 import { index as inventoryIndex } from '@/routes/inventory';
 import type { Item, Warehouse, User } from '@/types/inventory';
+import type { Product, Worksite } from '@/types/master';
 
 export default function InventoryIndex({
     items,
     warehouses,
     users,
     categories = [],
+    masterProducts = [],
+    masterWorksites = [],
 }: {
     items: Item[];
     warehouses: Warehouse[];
     users: User[];
     categories?: string[];
+    masterProducts?: Product[];
+    masterWorksites?: Worksite[];
 }) {
     const { auth } = usePage().props as any;
     const user = auth.user;
@@ -80,7 +84,10 @@ export default function InventoryIndex({
                     </div>
                     {isAdmin && (
                         <div className="flex gap-2">
-                            <ManageWarehousesDialog warehouses={warehouses} />
+                            <ManageWarehousesDialog
+                                warehouses={warehouses}
+                                worksites={masterWorksites}
+                            />
                             <ManageAccessDialog
                                 warehouses={warehouses}
                                 users={users}
@@ -88,6 +95,7 @@ export default function InventoryIndex({
                             <AddItemDialog
                                 warehouses={warehouses}
                                 categories={categories}
+                                masterProducts={masterProducts}
                             />
                         </div>
                     )}
@@ -189,6 +197,14 @@ export default function InventoryIndex({
                                                     <span className="text-neutral-450 text-[10px] font-medium">
                                                         REF: #{item.item_id}
                                                     </span>
+                                                    {item.specification && (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="h-5 rounded border-blue-200 bg-blue-50 px-1.5 py-0 text-[10px] font-normal text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300"
+                                                        >
+                                                            Spec: {item.specification.name}
+                                                        </Badge>
+                                                    )}
                                                     {isAdmin ? (
                                                         <EditCategoryDialog
                                                             item={item}
@@ -212,7 +228,7 @@ export default function InventoryIndex({
                                                     item.inventories.length >
                                                         0 ? (
                                                         item.inventories.map(
-                                                            (inv) => (
+                                                             (inv) => (
                                                                 <Badge
                                                                     key={inv.id}
                                                                     variant="secondary"
@@ -270,6 +286,9 @@ export default function InventoryIndex({
                                                             categories={
                                                                 categories
                                                             }
+                                                            masterProducts={
+                                                                masterProducts
+                                                            }
                                                         />
                                                         <DeleteItemButton
                                                             item={item}
@@ -298,17 +317,41 @@ export default function InventoryIndex({
 function AddItemDialog({
     warehouses,
     categories,
+    masterProducts = [],
 }: {
     warehouses: Warehouse[];
     categories: string[];
+    masterProducts?: Product[];
 }) {
     const [open, setOpen] = useState(false);
+    const [useCustomProduct, setUseCustomProduct] = useState(false);
     const { data, setData, post, processing, errors, reset } = useForm({
+        product_id: '',
+        product_specification_id: '',
         item_name: '',
         category: '',
         warehouse_id: '',
         initial_quantity: 0,
     });
+
+    const selectedMasterProduct = masterProducts.find(
+        (p) => p.id.toString() === data.product_id,
+    );
+    const availableSpecs = selectedMasterProduct?.specifications || [];
+
+    const handleMasterProductSelect = (productId: string) => {
+        const prod = masterProducts.find((p) => p.id.toString() === productId);
+
+        if (prod) {
+            setData({
+                ...data,
+                product_id: prod.id.toString(),
+                product_specification_id: '',
+                item_name: prod.name,
+                category: prod.category,
+            });
+        }
+    };
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -316,6 +359,7 @@ function AddItemDialog({
             onSuccess: () => {
                 setOpen(false);
                 reset();
+                setUseCustomProduct(false);
             },
         });
     };
@@ -328,31 +372,125 @@ function AddItemDialog({
                     Add Product
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[440px]">
                 <DialogHeader>
                     <DialogTitle>Add New Product</DialogTitle>
                     <DialogDescription>
-                        Create a new product and optionally set its initial
-                        stock.
+                        Select a product from Feature Master or create custom stock.
                     </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={submit} className="mt-4 space-y-5">
+                <form onSubmit={submit} className="mt-4 space-y-4">
                     <div className="space-y-1.5">
-                        <Label htmlFor="item_name">Product Name</Label>
-                        <Input
-                            id="item_name"
-                            placeholder="e.g. MacBook Pro M3"
-                            value={data.item_name}
-                            onChange={(e) =>
-                                setData('item_name', e.target.value)
-                            }
-                        />
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="master_product">Product</Label>
+                            {masterProducts.length > 0 && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const next = !useCustomProduct;
+                                        setUseCustomProduct(next);
+
+                                        if (next) {
+                                            setData({
+                                                ...data,
+                                                product_id: '',
+                                                product_specification_id: '',
+                                                item_name: '',
+                                            });
+                                        }
+                                    }}
+                                    className="text-[11px] font-medium text-indigo-600 hover:underline dark:text-indigo-400"
+                                >
+                                    {useCustomProduct
+                                        ? '← Select from Master'
+                                        : '+ Custom name'}
+                                </button>
+                            )}
+                        </div>
+
+                        {!useCustomProduct && masterProducts.length > 0 ? (
+                            <Select
+                                value={data.product_id}
+                                onValueChange={handleMasterProductSelect}
+                            >
+                                <SelectTrigger
+                                    id="master_product"
+                                    className="bg-white dark:bg-neutral-900"
+                                >
+                                    <SelectValue placeholder="Select Master Product" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {masterProducts.map((p) => (
+                                        <SelectItem
+                                            key={p.id}
+                                            value={p.id.toString()}
+                                        >
+                                            {p.name} ({p.category})
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        ) : (
+                            <Input
+                                id="item_name"
+                                placeholder="e.g. MacBook Pro M3"
+                                value={data.item_name}
+                                onChange={(e) =>
+                                    setData('item_name', e.target.value)
+                                }
+                            />
+                        )}
                         {errors.item_name && (
                             <p className="text-xs font-medium text-red-500">
                                 {errors.item_name}
                             </p>
                         )}
+                        {errors.product_id && (
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.product_id}
+                            </p>
+                        )}
                     </div>
+
+                    {selectedMasterProduct && availableSpecs.length > 0 && (
+                        <div className="space-y-1.5">
+                            <Label htmlFor="product_spec">
+                                Specification (Optional)
+                            </Label>
+                            <Select
+                                value={data.product_specification_id}
+                                onValueChange={(val) =>
+                                    setData(
+                                        'product_specification_id',
+                                        val === '__none__' ? '' : val,
+                                    )
+                                }
+                            >
+                                <SelectTrigger
+                                    id="product_spec"
+                                    className="bg-white dark:bg-neutral-900"
+                                >
+                                    <SelectValue placeholder="Select specification..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="__none__">
+                                        None / Standard
+                                    </SelectItem>
+                                    {availableSpecs.map((s) => (
+                                        <SelectItem
+                                            key={s.id}
+                                            value={s.id.toString()}
+                                        >
+                                            {s.name}{' '}
+                                            {s.part_number
+                                                ? `(${s.part_number})`
+                                                : ''}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
 
                     <div className="space-y-1.5">
                         <Label htmlFor="category">Category</Label>
@@ -374,7 +512,9 @@ function AddItemDialog({
                             <WarehouseInput
                                 id="warehouse_id"
                                 value={data.warehouse_id}
-                                onChange={(val) => setData('warehouse_id', val)}
+                                onChange={(val) =>
+                                    setData('warehouse_id', val)
+                                }
                                 warehouses={warehouses}
                                 error={errors.warehouse_id}
                             />
@@ -566,18 +706,53 @@ function EditItemDialog({
     item,
     warehouses,
     categories,
+    masterProducts = [],
 }: {
     item: Item;
     warehouses: Warehouse[];
     categories: string[];
+    masterProducts?: Product[];
 }) {
     const [open, setOpen] = useState(false);
     const { data, setData, patch, processing, errors, reset } = useForm({
+        product_id: item.product_id ? item.product_id.toString() : '',
+        product_specification_id: item.product_specification_id
+            ? item.product_specification_id.toString()
+            : '',
         item_name: item.item_name,
         category: item.category || '',
         warehouse_id: '',
         quantity_adjustment: 0,
     });
+
+    const selectedMasterProduct = masterProducts.find(
+        (p) => p.id.toString() === data.product_id,
+    );
+    const availableSpecs = selectedMasterProduct?.specifications || [];
+
+    const handleMasterProductSelect = (productId: string) => {
+        if (productId === '__custom__') {
+            setData({
+                ...data,
+                product_id: '',
+                product_specification_id: '',
+            });
+
+            return;
+        }
+
+        const prod = masterProducts.find((p) => p.id.toString() === productId);
+
+        if (prod) {
+            setData({
+                ...data,
+                product_id: prod.id.toString(),
+                product_specification_id: '',
+                item_name: prod.name,
+                category: prod.category,
+            });
+        }
+    };
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -596,12 +771,87 @@ function EditItemDialog({
                     Edit
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[440px]">
                 <DialogHeader>
                     <DialogTitle>Edit Product</DialogTitle>
+                    <DialogDescription>
+                        Update product details, master reference, or adjust stock.
+                    </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={submit} className="mt-4 space-y-6">
-                    <div className="space-y-2">
+                <form onSubmit={submit} className="mt-4 space-y-5">
+                    {masterProducts.length > 0 && (
+                        <div className="space-y-1.5">
+                            <Label htmlFor="edit_master_product">
+                                Master Product Link
+                            </Label>
+                            <Select
+                                value={data.product_id || '__custom__'}
+                                onValueChange={handleMasterProductSelect}
+                            >
+                                <SelectTrigger
+                                    id="edit_master_product"
+                                    className="bg-white dark:bg-neutral-900"
+                                >
+                                    <SelectValue placeholder="Select Master Product..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="__custom__">
+                                        Custom (Unlinked)
+                                    </SelectItem>
+                                    {masterProducts.map((p) => (
+                                        <SelectItem
+                                            key={p.id}
+                                            value={p.id.toString()}
+                                        >
+                                            {p.name} ({p.category})
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
+                    {selectedMasterProduct && availableSpecs.length > 0 && (
+                        <div className="space-y-1.5">
+                            <Label htmlFor="edit_product_spec">
+                                Specification (Optional)
+                            </Label>
+                            <Select
+                                value={data.product_specification_id}
+                                onValueChange={(val) =>
+                                    setData(
+                                        'product_specification_id',
+                                        val === '__none__' ? '' : val,
+                                    )
+                                }
+                            >
+                                <SelectTrigger
+                                    id="edit_product_spec"
+                                    className="bg-white dark:bg-neutral-900"
+                                >
+                                    <SelectValue placeholder="Select specification..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="__none__">
+                                        None / Standard
+                                    </SelectItem>
+                                    {availableSpecs.map((s) => (
+                                        <SelectItem
+                                            key={s.id}
+                                            value={s.id.toString()}
+                                        >
+                                            {s.name}{' '}
+                                            {s.part_number
+                                                ? `(${s.part_number})`
+                                                : ''}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
+                    <div className="space-y-1.5">
                         <Label htmlFor="edit_item_name">Product Name</Label>
                         <Input
                             id="edit_item_name"
@@ -617,7 +867,7 @@ function EditItemDialog({
                         )}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                         <Label htmlFor="edit_category">Category</Label>
                         <CategoryInput
                             id="edit_category"
@@ -712,12 +962,38 @@ function EditItemDialog({
     );
 }
 
-function ManageWarehousesDialog({ warehouses }: { warehouses: Warehouse[] }) {
+function ManageWarehousesDialog({
+    warehouses,
+    worksites = [],
+}: {
+    warehouses: Warehouse[];
+    worksites?: Worksite[];
+}) {
     const [open, setOpen] = useState(false);
     const { data, setData, post, processing, errors, reset } = useForm({
+        worksite_id: '',
         name: '',
         location: '',
     });
+
+    const handleWorksiteSelect = (worksiteId: string) => {
+        if (worksiteId === '__none__') {
+            setData({ ...data, worksite_id: '' });
+
+            return;
+        }
+
+        const ws = worksites.find((w) => w.id.toString() === worksiteId);
+
+        if (ws) {
+            setData({
+                ...data,
+                worksite_id: ws.id.toString(),
+                name: data.name || ws.name,
+                location: data.location || ws.address || ws.name,
+            });
+        }
+    };
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -755,8 +1031,7 @@ function ManageWarehousesDialog({ warehouses }: { warehouses: Warehouse[] }) {
                 <DialogHeader>
                     <DialogTitle>Manage Warehouses</DialogTitle>
                     <DialogDescription>
-                        Add new warehouses or delete existing ones from the
-                        system.
+                        Add new warehouses linked to Feature Master Worksites or manage existing ones.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -767,6 +1042,39 @@ function ManageWarehousesDialog({ warehouses }: { warehouses: Warehouse[] }) {
                     <div className="text-neutral-450 dark:text-neutral-450 mb-2 text-xs font-bold tracking-wider uppercase">
                         Create New Warehouse
                     </div>
+
+                    {worksites.length > 0 && (
+                        <div className="space-y-1.5">
+                            <Label htmlFor="master_worksite">
+                                Master Worksite (Optional)
+                            </Label>
+                            <Select
+                                value={data.worksite_id}
+                                onValueChange={handleWorksiteSelect}
+                            >
+                                <SelectTrigger
+                                    id="master_worksite"
+                                    className="bg-white dark:bg-neutral-900"
+                                >
+                                    <SelectValue placeholder="Select Worksite from Feature Master" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="__none__">
+                                        None / Standalone
+                                    </SelectItem>
+                                    {worksites.map((ws) => (
+                                        <SelectItem
+                                            key={ws.id}
+                                            value={ws.id.toString()}
+                                        >
+                                            {ws.name} ({ws.group})
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                         <div className="space-y-1.5">
                             <Label htmlFor="warehouse_name">Name</Label>
@@ -830,8 +1138,16 @@ function ManageWarehousesDialog({ warehouses }: { warehouses: Warehouse[] }) {
                                     <div className="flex items-start gap-2.5">
                                         <WarehouseIcon className="mt-1 h-4 w-4 shrink-0 text-neutral-400" />
                                         <div>
-                                            <div className="text-neutral-850 text-sm font-semibold dark:text-neutral-100">
-                                                {warehouse.name}
+                                            <div className="text-neutral-850 flex items-center gap-1.5 text-sm font-semibold dark:text-neutral-100">
+                                                <span>{warehouse.name}</span>
+                                                {warehouse.worksite && (
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="h-4 border-indigo-200 bg-indigo-50 px-1 text-[9px] font-normal text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-300"
+                                                    >
+                                                        {warehouse.worksite.name}
+                                                    </Badge>
+                                                )}
                                             </div>
                                             {warehouse.location && (
                                                 <div className="text-neutral-450 text-xs dark:text-neutral-400">

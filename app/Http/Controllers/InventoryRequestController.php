@@ -6,7 +6,9 @@ use App\Http\Requests\StoreInventoryRequest;
 use App\Http\Requests\UpdateInventoryRequestStatus;
 use App\Models\InventoryRequest;
 use App\Models\Item;
+use App\Models\Project;
 use App\Models\Warehouse;
+use App\Models\Worksite;
 use App\Services\InventoryService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,9 +16,7 @@ use Inertia\Response;
 
 class InventoryRequestController extends Controller
 {
-    public function __construct(protected InventoryService $inventoryService)
-    {
-    }
+    public function __construct(protected InventoryService $inventoryService) {}
 
     /**
      * Display a listing of the requests for the authenticated user.
@@ -24,29 +24,31 @@ class InventoryRequestController extends Controller
     public function index(): Response
     {
         $user = auth()->user();
-        
+
         // Users can only see requests for warehouses they have access to
-        $warehouseIds = $user->isAdmin() 
-            ? Warehouse::pluck('id') 
+        $warehouseIds = $user->isAdmin()
+            ? Warehouse::pluck('id')
             : $user->warehouses->pluck('id');
 
         // Filter items: Only show items that have stock/exist (quantity > 0) in the user's warehouses
         $items = Item::whereHas('inventories', function ($query) use ($warehouseIds) {
             $query->whereIn('warehouse_id', $warehouseIds)
-                  ->where('quantity', '>', 0);
-        })->with(['inventories' => function ($query) use ($warehouseIds) {
+                ->where('quantity', '>', 0);
+        })->with(['product', 'specification', 'inventories' => function ($query) use ($warehouseIds) {
             $query->whereIn('warehouse_id', $warehouseIds)
-                  ->where('quantity', '>', 0);
-        }, 'inventories.warehouse'])->get();
+                ->where('quantity', '>', 0);
+        }, 'inventories.warehouse.worksite'])->get();
 
         return Inertia::render('requests/index', [
-            'requests' => InventoryRequest::with(['item', 'warehouse'])
+            'requests' => InventoryRequest::with(['item.product', 'warehouse.worksite', 'project', 'worksite'])
                 ->where('user_id', $user->id)
                 ->whereIn('warehouse_id', $warehouseIds)
                 ->latest()
                 ->get(),
             'items' => $items,
-            'warehouses' => $user->isAdmin() ? Warehouse::all() : $user->warehouses,
+            'warehouses' => $user->isAdmin() ? Warehouse::with('worksite')->get() : $user->warehouses()->with('worksite')->get(),
+            'projects' => Project::orderBy('name')->get(),
+            'worksites' => Worksite::where('stage', '!=', 'Drop')->orderBy('name')->get(),
         ]);
     }
 
@@ -56,9 +58,11 @@ class InventoryRequestController extends Controller
     public function adminIndex(): Response
     {
         return Inertia::render('admin/requests/index', [
-            'requests' => InventoryRequest::with(['item', 'user', 'warehouse'])
+            'requests' => InventoryRequest::with(['item.product', 'user', 'warehouse.worksite', 'project', 'worksite'])
                 ->latest()
                 ->get(),
+            'projects' => Project::orderBy('name')->get(),
+            'worksites' => Worksite::where('stage', '!=', 'Drop')->orderBy('name')->get(),
         ]);
     }
 
@@ -71,6 +75,8 @@ class InventoryRequestController extends Controller
             'user_id' => auth()->id(),
             'item_id' => $request->item_id,
             'warehouse_id' => $request->warehouse_id,
+            'project_id' => $request->project_id,
+            'worksite_id' => $request->worksite_id,
             'qty' => $request->qty,
             'status' => 'requested',
             'type' => 'OUT',
@@ -88,11 +94,11 @@ class InventoryRequestController extends Controller
         $newStatus = $request->status;
 
         if ($oldStatus === 'canceled') {
-             return back()->withErrors(['status' => 'Cannot change status of a canceled request.']);
+            return back()->withErrors(['status' => 'Cannot change status of a canceled request.']);
         }
 
-        if ($oldStatus === 'finished' && !in_array($newStatus, ['onReview', 'canceled'])) {
-             return back()->withErrors(['status' => 'Finished requests can only be transitioned to onReview or canceled.']);
+        if ($oldStatus === 'finished' && ! in_array($newStatus, ['onReview', 'canceled'])) {
+            return back()->withErrors(['status' => 'Finished requests can only be transitioned to onReview or canceled.']);
         }
 
         if ($newStatus === 'finished') {
@@ -130,7 +136,7 @@ class InventoryRequestController extends Controller
                     referenceId: $inventoryRequest->id
                 );
             } catch (\Exception $e) {
-                return back()->withErrors(['status' => 'Failed to revert stock: ' . $e->getMessage()]);
+                return back()->withErrors(['status' => 'Failed to revert stock: '.$e->getMessage()]);
             }
         }
 
@@ -169,7 +175,7 @@ class InventoryRequestController extends Controller
         $user = auth()->user();
 
         // Security check: Only Admin or the owner can delete
-        if (!$user->isAdmin() && $inventoryRequest->user_id !== $user->id) {
+        if (! $user->isAdmin() && $inventoryRequest->user_id !== $user->id) {
             abort(403, 'Unauthorized to delete this record.');
         }
 
@@ -180,7 +186,7 @@ class InventoryRequestController extends Controller
 
         $inventoryRequest->delete();
 
-        \Inertia\Inertia::flash('toast', [
+        Inertia::flash('toast', [
             'type' => 'success',
             'message' => 'Request history deleted successfully.',
         ]);

@@ -1,3 +1,5 @@
+import type { Product, ProductSpecification, Project, Worksite } from './master';
+
 export interface User {
     id: number;
     name: string;
@@ -9,6 +11,8 @@ export interface Warehouse {
     id: number;
     name: string;
     location: string | null;
+    worksite_id?: number | null;
+    worksite?: Worksite;
     created_at: string;
     updated_at: string;
     users?: User[];
@@ -29,6 +33,10 @@ export interface Item {
     item_id: number;
     item_name: string;
     category?: string | null;
+    product_id?: number | null;
+    product_specification_id?: number | null;
+    product?: Product;
+    specification?: ProductSpecification;
     created_at: string;
     updated_at: string;
     inventories?: Inventory[];
@@ -40,6 +48,8 @@ export interface InventoryRequest {
     user_id: number;
     item_id: number;
     warehouse_id: number;
+    project_id?: number | null;
+    worksite_id?: number | null;
     qty: number;
     status: 'requested' | 'onReview' | 'finished' | 'canceled';
     type: 'IN' | 'OUT';
@@ -49,6 +59,8 @@ export interface InventoryRequest {
     item?: Item;
     warehouse?: Warehouse;
     user?: User;
+    project?: Project;
+    worksite?: Worksite;
 }
 
 export interface InventoryMutation {

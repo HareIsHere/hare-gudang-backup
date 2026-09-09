@@ -11,7 +11,6 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from '@/components/ui/dialog';
 import {
     Select,
@@ -114,7 +113,7 @@ export default function AdminRequestsIndex({
                                                 <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                                                     {request.item?.item_name}
                                                 </span>
-                                                <div className="mt-0.5 flex items-center gap-1.5">
+                                                <div className="mt-1 flex flex-wrap items-center gap-1.5">
                                                     <Badge
                                                         variant="outline"
                                                         className="h-4 border-none bg-neutral-100 px-1.5 py-0 text-[10px] dark:bg-neutral-800"
@@ -124,6 +123,22 @@ export default function AdminRequestsIndex({
                                                                 ?.name
                                                         }
                                                     </Badge>
+                                                    {request.project && (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="h-4 border-purple-200 bg-purple-50 px-1 text-[9px] font-normal text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-300"
+                                                        >
+                                                            Project: {request.project.name}
+                                                        </Badge>
+                                                    )}
+                                                    {request.worksite && (
+                                                        <Badge
+                                                            variant="outline"
+                                                            className="h-4 border-indigo-200 bg-indigo-50 px-1 text-[9px] font-normal text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-300"
+                                                        >
+                                                            Site: {request.worksite.name}
+                                                        </Badge>
+                                                    )}
                                                     {request.type === 'IN' && (
                                                         <Badge
                                                             variant="secondary"

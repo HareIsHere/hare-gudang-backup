@@ -23,7 +23,9 @@ class UpdateItemRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'item_name' => ['required', 'string', 'max:255'],
+            'item_name' => ['nullable', 'string', 'max:255'],
+            'product_id' => ['nullable', 'exists:products,id'],
+            'product_specification_id' => ['nullable', 'exists:product_specifications,id'],
             'category' => ['nullable', 'string', 'max:255'],
             'warehouse_id' => ['nullable', 'exists:warehouses,id'],
             'quantity_adjustment' => ['nullable', 'integer', 'not_in:0'],
