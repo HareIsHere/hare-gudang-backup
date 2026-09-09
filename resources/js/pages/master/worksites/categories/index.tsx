@@ -30,8 +30,8 @@ import type { WorksiteCategory, Stage } from '@/types/master';
 
 function formatDateTime(dateStr?: string | null): string {
     if (!dateStr) {
-return '-';
-}
+        return '-';
+    }
 
     const d = new Date(dateStr);
 
@@ -52,7 +52,8 @@ export default function WorksiteCategoriesIndex({
     categories: WorksiteCategory[];
 }) {
     const [searchQuery, setSearchQuery] = useState('');
-    const [categoryToDelete, setCategoryToDelete] = useState<WorksiteCategory | null>(null);
+    const [categoryToDelete, setCategoryToDelete] =
+        useState<WorksiteCategory | null>(null);
 
     const filteredCategories = categories.filter((cat) => {
         const query = searchQuery.toLowerCase();
@@ -177,10 +178,10 @@ export default function WorksiteCategoriesIndex({
                                         key={cat.id}
                                         className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
                                     >
-                                        <td className="px-6 py-4 text-sm font-medium text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {cat.group}
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-semibold text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-sm font-semibold whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {cat.name}
                                         </td>
                                         <td className="max-w-xs truncate px-6 py-4 text-sm text-neutral-500 dark:text-neutral-400">
@@ -189,26 +190,30 @@ export default function WorksiteCategoriesIndex({
                                         <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <StageBadge stage={cat.stage} />
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {formatDateTime(cat.created_at)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {cat.creator?.name ?? '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {formatDateTime(cat.updated_at)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {cat.updater?.name ?? '-'}
                                         </td>
                                         <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                                             <div className="flex items-center justify-end gap-2">
-                                                <EditCategoryDialog category={cat} />
+                                                <EditCategoryDialog
+                                                    category={cat}
+                                                />
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-8 w-8 text-neutral-400 hover:text-red-600"
-                                                    onClick={() => setCategoryToDelete(cat)}
+                                                    onClick={() =>
+                                                        setCategoryToDelete(cat)
+                                                    }
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
@@ -246,7 +251,10 @@ export default function WorksiteCategoriesIndex({
                         </Button>
                         <Button
                             variant="destructive"
-                            onClick={() => categoryToDelete && handleDelete(categoryToDelete)}
+                            onClick={() =>
+                                categoryToDelete &&
+                                handleDelete(categoryToDelete)
+                            }
                         >
                             Confirm Delete
                         </Button>
@@ -301,7 +309,9 @@ function AddCategoryDialog() {
                             onChange={(e) => setData('group', e.target.value)}
                         />
                         {errors.group && (
-                            <p className="text-xs font-medium text-red-500">{errors.group}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.group}
+                            </p>
                         )}
                     </div>
 
@@ -314,7 +324,9 @@ function AddCategoryDialog() {
                             onChange={(e) => setData('name', e.target.value)}
                         />
                         {errors.name && (
-                            <p className="text-xs font-medium text-red-500">{errors.name}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.name}
+                            </p>
                         )}
                     </div>
 
@@ -324,11 +336,15 @@ function AddCategoryDialog() {
                             id="create_description"
                             placeholder="Optional description..."
                             value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
                             rows={3}
                         />
                         {errors.description && (
-                            <p className="text-xs font-medium text-red-500">{errors.description}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.description}
+                            </p>
                         )}
                     </div>
 
@@ -336,18 +352,27 @@ function AddCategoryDialog() {
                         <Label htmlFor="create_stage">Stage</Label>
                         <Select
                             value={data.stage}
-                            onValueChange={(val: Stage) => setData('stage', val)}
+                            onValueChange={(val: Stage) =>
+                                setData('stage', val)
+                            }
                         >
-                            <SelectTrigger id="create_stage" className="bg-white dark:bg-neutral-900">
+                            <SelectTrigger
+                                id="create_stage"
+                                className="bg-white dark:bg-neutral-900"
+                            >
                                 <SelectValue placeholder="Select Stage" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Revision">Revision</SelectItem>
+                                <SelectItem value="Revision">
+                                    Revision
+                                </SelectItem>
                                 <SelectItem value="Ready">Ready</SelectItem>
                             </SelectContent>
                         </Select>
                         {errors.stage && (
-                            <p className="text-xs font-medium text-red-500">{errors.stage}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.stage}
+                            </p>
                         )}
                     </div>
 
@@ -404,14 +429,18 @@ function EditCategoryDialog({ category }: { category: WorksiteCategory }) {
                 </DialogHeader>
                 <form onSubmit={submit} className="mt-4 space-y-4">
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_group_${category.id}`}>Group</Label>
+                        <Label htmlFor={`edit_group_${category.id}`}>
+                            Group
+                        </Label>
                         <Input
                             id={`edit_group_${category.id}`}
                             value={data.group}
                             onChange={(e) => setData('group', e.target.value)}
                         />
                         {errors.group && (
-                            <p className="text-xs font-medium text-red-500">{errors.group}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.group}
+                            </p>
                         )}
                     </div>
 
@@ -423,39 +452,58 @@ function EditCategoryDialog({ category }: { category: WorksiteCategory }) {
                             onChange={(e) => setData('name', e.target.value)}
                         />
                         {errors.name && (
-                            <p className="text-xs font-medium text-red-500">{errors.name}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.name}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_description_${category.id}`}>Description</Label>
+                        <Label htmlFor={`edit_description_${category.id}`}>
+                            Description
+                        </Label>
                         <Textarea
                             id={`edit_description_${category.id}`}
                             value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
                             rows={3}
                         />
                         {errors.description && (
-                            <p className="text-xs font-medium text-red-500">{errors.description}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.description}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_stage_${category.id}`}>Stage</Label>
+                        <Label htmlFor={`edit_stage_${category.id}`}>
+                            Stage
+                        </Label>
                         <Select
                             value={data.stage}
-                            onValueChange={(val: Stage) => setData('stage', val)}
+                            onValueChange={(val: Stage) =>
+                                setData('stage', val)
+                            }
                         >
-                            <SelectTrigger id={`edit_stage_${category.id}`} className="bg-white dark:bg-neutral-900">
+                            <SelectTrigger
+                                id={`edit_stage_${category.id}`}
+                                className="bg-white dark:bg-neutral-900"
+                            >
                                 <SelectValue placeholder="Select Stage" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Revision">Revision</SelectItem>
+                                <SelectItem value="Revision">
+                                    Revision
+                                </SelectItem>
                                 <SelectItem value="Ready">Ready</SelectItem>
                             </SelectContent>
                         </Select>
                         {errors.stage && (
-                            <p className="text-xs font-medium text-red-500">{errors.stage}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.stage}
+                            </p>
                         )}
                     </div>
 

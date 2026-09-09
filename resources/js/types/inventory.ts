@@ -1,4 +1,9 @@
-import type { Product, ProductSpecification, Project, Worksite } from './master';
+import type {
+    Product,
+    ProductSpecification,
+    Project,
+    Worksite,
+} from './master';
 
 export interface User {
     id: number;

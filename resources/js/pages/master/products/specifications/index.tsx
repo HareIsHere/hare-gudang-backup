@@ -31,8 +31,8 @@ import type { ProductSpecification, Stage } from '@/types/master';
 
 function formatDateTime(dateStr?: string | null): string {
     if (!dateStr) {
-return '-';
-}
+        return '-';
+    }
 
     const d = new Date(dateStr);
 
@@ -55,7 +55,8 @@ export default function ProductSpecificationsIndex({
     products: { id: number; name: string; group?: string }[];
 }) {
     const [searchQuery, setSearchQuery] = useState('');
-    const [specToDelete, setSpecToDelete] = useState<ProductSpecification | null>(null);
+    const [specToDelete, setSpecToDelete] =
+        useState<ProductSpecification | null>(null);
 
     const filteredSpecifications = specifications.filter((spec) => {
         const query = searchQuery.toLowerCase();
@@ -63,16 +64,20 @@ export default function ProductSpecificationsIndex({
         return (
             spec.name.toLowerCase().includes(query) ||
             spec.group.toLowerCase().includes(query) ||
-            (spec.product?.name && spec.product.name.toLowerCase().includes(query)) ||
-            (spec.part_number && spec.part_number.toLowerCase().includes(query)) ||
-            (spec.measurement_unit && spec.measurement_unit.toLowerCase().includes(query)) ||
+            (spec.product?.name &&
+                spec.product.name.toLowerCase().includes(query)) ||
+            (spec.part_number &&
+                spec.part_number.toLowerCase().includes(query)) ||
+            (spec.measurement_unit &&
+                spec.measurement_unit.toLowerCase().includes(query)) ||
             (spec.description && spec.description.toLowerCase().includes(query))
         );
     });
 
     const handleDelete = (spec: ProductSpecification) => {
         router.delete(
-            ProductSpecificationController.destroy({ specification: spec.id }).url,
+            ProductSpecificationController.destroy({ specification: spec.id })
+                .url,
             {
                 preserveScroll: true,
                 onSuccess: () => setSpecToDelete(null),
@@ -103,7 +108,8 @@ export default function ProductSpecificationsIndex({
                             Products
                         </h1>
                         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                            Manage product specifications, technical details, and part numbers.
+                            Manage product specifications, technical details,
+                            and part numbers.
                         </p>
                     </div>
                     <AddSpecificationDialog products={products} />
@@ -198,28 +204,34 @@ export default function ProductSpecificationsIndex({
                                         key={spec.id}
                                         className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
                                     >
-                                        <td className="px-6 py-4 text-xs font-mono text-neutral-500 whitespace-nowrap">
+                                        <td className="px-6 py-4 font-mono text-xs whitespace-nowrap text-neutral-500">
                                             #{spec.id}
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-medium text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {spec.group}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-700 whitespace-nowrap dark:text-neutral-300">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-700 dark:text-neutral-300">
                                             {spec.product?.name || '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-semibold text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-sm font-semibold whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {spec.name}
                                         </td>
-                                        <td className="px-6 py-4 text-xs font-mono text-neutral-600 whitespace-nowrap dark:text-neutral-300">
+                                        <td className="px-6 py-4 font-mono text-xs whitespace-nowrap text-neutral-600 dark:text-neutral-300">
                                             {spec.part_number || '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-600 whitespace-nowrap dark:text-neutral-300">
-                                            <Badge variant="outline" className="text-xs font-normal">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-600 dark:text-neutral-300">
+                                            <Badge
+                                                variant="outline"
+                                                className="text-xs font-normal"
+                                            >
                                                 {spec.measurement_unit || '-'}
                                             </Badge>
                                         </td>
                                         <td className="px-6 py-4 text-center whitespace-nowrap">
-                                            <Badge variant="secondary" className="px-2 py-0.5 text-xs font-semibold">
+                                            <Badge
+                                                variant="secondary"
+                                                className="px-2 py-0.5 text-xs font-semibold"
+                                            >
                                                 {spec.prices_count ?? 0}
                                             </Badge>
                                         </td>
@@ -229,16 +241,16 @@ export default function ProductSpecificationsIndex({
                                         <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <StageBadge stage={spec.stage} />
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {formatDateTime(spec.created_at)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {spec.creator?.name ?? '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {formatDateTime(spec.updated_at)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {spec.updater?.name ?? '-'}
                                         </td>
                                         <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
@@ -251,7 +263,9 @@ export default function ProductSpecificationsIndex({
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-8 w-8 text-neutral-400 hover:text-red-600"
-                                                    onClick={() => setSpecToDelete(spec)}
+                                                    onClick={() =>
+                                                        setSpecToDelete(spec)
+                                                    }
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
@@ -289,7 +303,9 @@ export default function ProductSpecificationsIndex({
                         </Button>
                         <Button
                             variant="destructive"
-                            onClick={() => specToDelete && handleDelete(specToDelete)}
+                            onClick={() =>
+                                specToDelete && handleDelete(specToDelete)
+                            }
                         >
                             Confirm Delete
                         </Button>
@@ -338,7 +354,8 @@ function AddSpecificationDialog({
                 <DialogHeader>
                     <DialogTitle>Add Product Specification</DialogTitle>
                     <DialogDescription>
-                        Define specification details, part number, and unit for a product.
+                        Define specification details, part number, and unit for
+                        a product.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={submit} className="mt-4 space-y-4">
@@ -348,19 +365,27 @@ function AddSpecificationDialog({
                             value={data.product_id}
                             onValueChange={(val) => setData('product_id', val)}
                         >
-                            <SelectTrigger id="create_product_id" className="bg-white dark:bg-neutral-900">
+                            <SelectTrigger
+                                id="create_product_id"
+                                className="bg-white dark:bg-neutral-900"
+                            >
                                 <SelectValue placeholder="Select Product" />
                             </SelectTrigger>
                             <SelectContent>
                                 {products.map((p) => (
-                                    <SelectItem key={p.id} value={p.id.toString()}>
+                                    <SelectItem
+                                        key={p.id}
+                                        value={p.id.toString()}
+                                    >
                                         {p.name}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                         {errors.product_id && (
-                            <p className="text-xs font-medium text-red-500">{errors.product_id}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.product_id}
+                            </p>
                         )}
                     </div>
 
@@ -373,7 +398,9 @@ function AddSpecificationDialog({
                             onChange={(e) => setData('group', e.target.value)}
                         />
                         {errors.group && (
-                            <p className="text-xs font-medium text-red-500">{errors.group}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.group}
+                            </p>
                         )}
                     </div>
 
@@ -386,18 +413,24 @@ function AddSpecificationDialog({
                             onChange={(e) => setData('name', e.target.value)}
                         />
                         {errors.name && (
-                            <p className="text-xs font-medium text-red-500">{errors.name}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.name}
+                            </p>
                         )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
-                            <Label htmlFor="create_part_number">Part Number</Label>
+                            <Label htmlFor="create_part_number">
+                                Part Number
+                            </Label>
                             <Input
                                 id="create_part_number"
                                 placeholder="e.g. PN-12345"
                                 value={data.part_number}
-                                onChange={(e) => setData('part_number', e.target.value)}
+                                onChange={(e) =>
+                                    setData('part_number', e.target.value)
+                                }
                             />
                             {errors.part_number && (
                                 <p className="text-xs font-medium text-red-500">
@@ -406,12 +439,16 @@ function AddSpecificationDialog({
                             )}
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor="create_measurement_unit">Measurement Unit</Label>
+                            <Label htmlFor="create_measurement_unit">
+                                Measurement Unit
+                            </Label>
                             <Input
                                 id="create_measurement_unit"
                                 placeholder="e.g. PCS, UNIT, SET"
                                 value={data.measurement_unit}
-                                onChange={(e) => setData('measurement_unit', e.target.value)}
+                                onChange={(e) =>
+                                    setData('measurement_unit', e.target.value)
+                                }
                             />
                             {errors.measurement_unit && (
                                 <p className="text-xs font-medium text-red-500">
@@ -427,11 +464,15 @@ function AddSpecificationDialog({
                             id="create_description"
                             placeholder="Optional technical notes..."
                             value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
                             rows={3}
                         />
                         {errors.description && (
-                            <p className="text-xs font-medium text-red-500">{errors.description}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.description}
+                            </p>
                         )}
                     </div>
 
@@ -439,18 +480,27 @@ function AddSpecificationDialog({
                         <Label htmlFor="create_stage">Stage</Label>
                         <Select
                             value={data.stage}
-                            onValueChange={(val: Stage) => setData('stage', val)}
+                            onValueChange={(val: Stage) =>
+                                setData('stage', val)
+                            }
                         >
-                            <SelectTrigger id="create_stage" className="bg-white dark:bg-neutral-900">
+                            <SelectTrigger
+                                id="create_stage"
+                                className="bg-white dark:bg-neutral-900"
+                            >
                                 <SelectValue placeholder="Select Stage" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Revision">Revision</SelectItem>
+                                <SelectItem value="Revision">
+                                    Revision
+                                </SelectItem>
                                 <SelectItem value="Ready">Ready</SelectItem>
                             </SelectContent>
                         </Select>
                         {errors.stage && (
-                            <p className="text-xs font-medium text-red-500">{errors.stage}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.stage}
+                            </p>
                         )}
                     </div>
 
@@ -496,7 +546,9 @@ function EditSpecificationDialog({
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         put(
-            ProductSpecificationController.update({ specification: specification.id }).url,
+            ProductSpecificationController.update({
+                specification: specification.id,
+            }).url,
             {
                 onSuccess: () => {
                     setOpen(false);
@@ -519,7 +571,9 @@ function EditSpecificationDialog({
                 </DialogHeader>
                 <form onSubmit={submit} className="mt-4 space-y-4">
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_product_${specification.id}`}>Product</Label>
+                        <Label htmlFor={`edit_product_${specification.id}`}>
+                            Product
+                        </Label>
                         <Select
                             value={data.product_id}
                             onValueChange={(val) => setData('product_id', val)}
@@ -532,48 +586,67 @@ function EditSpecificationDialog({
                             </SelectTrigger>
                             <SelectContent>
                                 {products.map((p) => (
-                                    <SelectItem key={p.id} value={p.id.toString()}>
+                                    <SelectItem
+                                        key={p.id}
+                                        value={p.id.toString()}
+                                    >
                                         {p.name}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                         {errors.product_id && (
-                            <p className="text-xs font-medium text-red-500">{errors.product_id}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.product_id}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_group_${specification.id}`}>Group</Label>
+                        <Label htmlFor={`edit_group_${specification.id}`}>
+                            Group
+                        </Label>
                         <Input
                             id={`edit_group_${specification.id}`}
                             value={data.group}
                             onChange={(e) => setData('group', e.target.value)}
                         />
                         {errors.group && (
-                            <p className="text-xs font-medium text-red-500">{errors.group}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.group}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_name_${specification.id}`}>Specification Name</Label>
+                        <Label htmlFor={`edit_name_${specification.id}`}>
+                            Specification Name
+                        </Label>
                         <Input
                             id={`edit_name_${specification.id}`}
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
                         />
                         {errors.name && (
-                            <p className="text-xs font-medium text-red-500">{errors.name}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.name}
+                            </p>
                         )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
-                            <Label htmlFor={`edit_part_number_${specification.id}`}>Part Number</Label>
+                            <Label
+                                htmlFor={`edit_part_number_${specification.id}`}
+                            >
+                                Part Number
+                            </Label>
                             <Input
                                 id={`edit_part_number_${specification.id}`}
                                 value={data.part_number}
-                                onChange={(e) => setData('part_number', e.target.value)}
+                                onChange={(e) =>
+                                    setData('part_number', e.target.value)
+                                }
                             />
                             {errors.part_number && (
                                 <p className="text-xs font-medium text-red-500">
@@ -582,11 +655,15 @@ function EditSpecificationDialog({
                             )}
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor={`edit_unit_${specification.id}`}>Measurement Unit</Label>
+                            <Label htmlFor={`edit_unit_${specification.id}`}>
+                                Measurement Unit
+                            </Label>
                             <Input
                                 id={`edit_unit_${specification.id}`}
                                 value={data.measurement_unit}
-                                onChange={(e) => setData('measurement_unit', e.target.value)}
+                                onChange={(e) =>
+                                    setData('measurement_unit', e.target.value)
+                                }
                             />
                             {errors.measurement_unit && (
                                 <p className="text-xs font-medium text-red-500">
@@ -597,23 +674,33 @@ function EditSpecificationDialog({
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_description_${specification.id}`}>Description</Label>
+                        <Label htmlFor={`edit_description_${specification.id}`}>
+                            Description
+                        </Label>
                         <Textarea
                             id={`edit_description_${specification.id}`}
                             value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
                             rows={3}
                         />
                         {errors.description && (
-                            <p className="text-xs font-medium text-red-500">{errors.description}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.description}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_stage_${specification.id}`}>Stage</Label>
+                        <Label htmlFor={`edit_stage_${specification.id}`}>
+                            Stage
+                        </Label>
                         <Select
                             value={data.stage}
-                            onValueChange={(val: Stage) => setData('stage', val)}
+                            onValueChange={(val: Stage) =>
+                                setData('stage', val)
+                            }
                         >
                             <SelectTrigger
                                 id={`edit_stage_${specification.id}`}
@@ -622,12 +709,16 @@ function EditSpecificationDialog({
                                 <SelectValue placeholder="Select Stage" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Revision">Revision</SelectItem>
+                                <SelectItem value="Revision">
+                                    Revision
+                                </SelectItem>
                                 <SelectItem value="Ready">Ready</SelectItem>
                             </SelectContent>
                         </Select>
                         {errors.stage && (
-                            <p className="text-xs font-medium text-red-500">{errors.stage}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.stage}
+                            </p>
                         )}
                     </div>
 

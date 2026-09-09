@@ -32,9 +32,12 @@ export function NavMain({
             {label && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
             <SidebarMenu>
                 {items.map((item) => {
-                    const hasSubItems = Boolean(item.items && item.items.length > 0);
+                    const hasSubItems = Boolean(
+                        item.items && item.items.length > 0,
+                    );
                     const isSubActive =
-                        hasSubItems && item.items!.some((sub) => isCurrentUrl(sub.href));
+                        hasSubItems &&
+                        item.items!.some((sub) => isCurrentUrl(sub.href));
                     const isItemActive = isCurrentUrl(item.href) || isSubActive;
 
                     if (hasSubItems) {
@@ -42,7 +45,10 @@ export function NavMain({
                             <Collapsible
                                 key={item.title}
                                 asChild
-                                defaultOpen={isItemActive || isCurrentOrParentUrl(item.href)}
+                                defaultOpen={
+                                    isItemActive ||
+                                    isCurrentOrParentUrl(item.href)
+                                }
                                 className="group/collapsible"
                             >
                                 <SidebarMenuItem>
@@ -59,14 +65,25 @@ export function NavMain({
                                     <CollapsibleContent>
                                         <SidebarMenuSub>
                                             {item.items!.map((subItem) => (
-                                                <SidebarMenuSubItem key={subItem.title}>
+                                                <SidebarMenuSubItem
+                                                    key={subItem.title}
+                                                >
                                                     <SidebarMenuSubButton
                                                         asChild
-                                                        isActive={isCurrentUrl(subItem.href)}
+                                                        isActive={isCurrentUrl(
+                                                            subItem.href,
+                                                        )}
                                                     >
-                                                        <Link href={subItem.href} prefetch>
-                                                            {subItem.icon && <subItem.icon />}
-                                                            <span>{subItem.title}</span>
+                                                        <Link
+                                                            href={subItem.href}
+                                                            prefetch
+                                                        >
+                                                            {subItem.icon && (
+                                                                <subItem.icon />
+                                                            )}
+                                                            <span>
+                                                                {subItem.title}
+                                                            </span>
                                                         </Link>
                                                     </SidebarMenuSubButton>
                                                 </SidebarMenuSubItem>
@@ -97,4 +114,3 @@ export function NavMain({
         </SidebarGroup>
     );
 }
-

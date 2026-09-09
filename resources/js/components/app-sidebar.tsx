@@ -158,9 +158,7 @@ export function AppSidebar() {
             <SidebarContent>
                 <NavMain items={mainNavItems} label="Platform" />
                 <NavMain items={masterNavItems} label="Feature Master" />
-                {isAdmin && (
-                    <NavMain items={adminNavItems} label="Admin" />
-                )}
+                {isAdmin && <NavMain items={adminNavItems} label="Admin" />}
             </SidebarContent>
 
             <SidebarFooter>

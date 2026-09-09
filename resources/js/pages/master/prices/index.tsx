@@ -29,8 +29,8 @@ import type { Price, Stage } from '@/types/master';
 
 function formatDateTime(dateStr?: string | null): string {
     if (!dateStr) {
-return '-';
-}
+        return '-';
+    }
 
     const d = new Date(dateStr);
 
@@ -45,12 +45,15 @@ return '-';
           });
 }
 
-function formatPrice(amount: string | number, currency: string = 'IDR'): string {
+function formatPrice(
+    amount: string | number,
+    currency: string = 'IDR',
+): string {
     const num = typeof amount === 'string' ? parseFloat(amount) : amount;
 
     if (isNaN(num)) {
-return '-';
-}
+        return '-';
+    }
 
     return `${currency} ${num.toLocaleString(undefined, {
         minimumFractionDigits: 2,
@@ -87,7 +90,8 @@ export default function PricesIndex({
             p.vendor.toLowerCase().includes(query) ||
             p.group.toLowerCase().includes(query) ||
             (p.product?.name && p.product.name.toLowerCase().includes(query)) ||
-            (p.specification?.name && p.specification.name.toLowerCase().includes(query)) ||
+            (p.specification?.name &&
+                p.specification.name.toLowerCase().includes(query)) ||
             (p.specification?.part_number &&
                 p.specification.part_number.toLowerCase().includes(query)) ||
             p.currency.toLowerCase().includes(query)
@@ -119,7 +123,8 @@ export default function PricesIndex({
                             Prices
                         </h1>
                         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                            Manage vendor quotations, unit prices, and price change history.
+                            Manage vendor quotations, unit prices, and price
+                            change history.
                         </p>
                     </div>
                     <AddPriceDialog products={products} />
@@ -220,61 +225,76 @@ export default function PricesIndex({
                                         key={p.id}
                                         className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
                                     >
-                                        <td className="px-6 py-4 text-xs font-mono text-neutral-500 whitespace-nowrap">
+                                        <td className="px-6 py-4 font-mono text-xs whitespace-nowrap text-neutral-500">
                                             #{p.id}
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-medium text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {p.group}
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-semibold text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-sm font-semibold whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {p.vendor}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-700 whitespace-nowrap dark:text-neutral-300">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-700 dark:text-neutral-300">
                                             {p.product?.name || '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-700 whitespace-nowrap dark:text-neutral-300">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-700 dark:text-neutral-300">
                                             {p.specification?.name || '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-xs font-mono text-neutral-600 whitespace-nowrap dark:text-neutral-300">
-                                            {p.specification?.part_number || '-'}
+                                        <td className="px-6 py-4 font-mono text-xs whitespace-nowrap text-neutral-600 dark:text-neutral-300">
+                                            {p.specification?.part_number ||
+                                                '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-600 whitespace-nowrap dark:text-neutral-300">
-                                            <Badge variant="outline" className="text-xs font-normal">
-                                                {p.specification?.measurement_unit || '-'}
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-600 dark:text-neutral-300">
+                                            <Badge
+                                                variant="outline"
+                                                className="text-xs font-normal"
+                                            >
+                                                {p.specification
+                                                    ?.measurement_unit || '-'}
                                             </Badge>
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-semibold text-neutral-700 whitespace-nowrap dark:text-neutral-300">
+                                        <td className="px-6 py-4 text-sm font-semibold whitespace-nowrap text-neutral-700 dark:text-neutral-300">
                                             {p.currency}
                                         </td>
-                                        <td className="px-6 py-4 text-right text-sm font-bold text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-right text-sm font-bold whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {formatPrice(p.price, p.currency)}
                                         </td>
-                                        <td className="px-6 py-4 text-right text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
-                                            {p.last_price ? formatPrice(p.last_price, p.currency) : '-'}
+                                        <td className="px-6 py-4 text-right text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
+                                            {p.last_price
+                                                ? formatPrice(
+                                                      p.last_price,
+                                                      p.currency,
+                                                  )
+                                                : '-'}
                                         </td>
                                         <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <StageBadge stage={p.stage} />
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {formatDateTime(p.created_at)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {p.creator?.name ?? '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {formatDateTime(p.updated_at)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {p.updater?.name ?? '-'}
                                         </td>
                                         <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                                             <div className="flex items-center justify-end gap-2">
-                                                <EditPriceDialog price={p} products={products} />
+                                                <EditPriceDialog
+                                                    price={p}
+                                                    products={products}
+                                                />
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-8 w-8 text-neutral-400 hover:text-red-600"
-                                                    onClick={() => setPriceToDelete(p)}
+                                                    onClick={() =>
+                                                        setPriceToDelete(p)
+                                                    }
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
@@ -296,7 +316,8 @@ export default function PricesIndex({
                     <DialogHeader>
                         <DialogTitle>Delete Price Record</DialogTitle>
                         <DialogDescription>
-                            Are you sure you want to delete this price record for vendor{' '}
+                            Are you sure you want to delete this price record
+                            for vendor{' '}
                             <span className="font-semibold text-neutral-900 dark:text-neutral-50">
                                 {priceToDelete?.vendor}
                             </span>
@@ -312,7 +333,9 @@ export default function PricesIndex({
                         </Button>
                         <Button
                             variant="destructive"
-                            onClick={() => priceToDelete && handleDelete(priceToDelete)}
+                            onClick={() =>
+                                priceToDelete && handleDelete(priceToDelete)
+                            }
                         >
                             Confirm Delete
                         </Button>
@@ -337,7 +360,9 @@ function AddPriceDialog({ products }: { products: ProductWithSpecs[] }) {
         stage: 'Revision' as Stage,
     });
 
-    const activeProduct = products.find((p) => p.id.toString() === selectedProductId);
+    const activeProduct = products.find(
+        (p) => p.id.toString() === selectedProductId,
+    );
     const availableSpecs = activeProduct?.specifications || [];
 
     const submit = (e: React.FormEvent) => {
@@ -363,7 +388,8 @@ function AddPriceDialog({ products }: { products: ProductWithSpecs[] }) {
                 <DialogHeader>
                     <DialogTitle>Add Price Record</DialogTitle>
                     <DialogDescription>
-                        Record a vendor quotation or price for a product specification.
+                        Record a vendor quotation or price for a product
+                        specification.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={submit} className="mt-4 space-y-4">
@@ -381,7 +407,10 @@ function AddPriceDialog({ products }: { products: ProductWithSpecs[] }) {
                             </SelectTrigger>
                             <SelectContent>
                                 {products.map((p) => (
-                                    <SelectItem key={p.id} value={p.id.toString()}>
+                                    <SelectItem
+                                        key={p.id}
+                                        value={p.id.toString()}
+                                    >
                                         {p.name}
                                     </SelectItem>
                                 ))}
@@ -390,13 +419,23 @@ function AddPriceDialog({ products }: { products: ProductWithSpecs[] }) {
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor="create_spec_id">2. Select Specification</Label>
+                        <Label htmlFor="create_spec_id">
+                            2. Select Specification
+                        </Label>
                         <Select
                             value={data.product_specification_id}
-                            onValueChange={(val) => setData('product_specification_id', val)}
-                            disabled={!selectedProductId || availableSpecs.length === 0}
+                            onValueChange={(val) =>
+                                setData('product_specification_id', val)
+                            }
+                            disabled={
+                                !selectedProductId ||
+                                availableSpecs.length === 0
+                            }
                         >
-                            <SelectTrigger id="create_spec_id" className="bg-white dark:bg-neutral-900">
+                            <SelectTrigger
+                                id="create_spec_id"
+                                className="bg-white dark:bg-neutral-900"
+                            >
                                 <SelectValue
                                     placeholder={
                                         !selectedProductId
@@ -409,8 +448,14 @@ function AddPriceDialog({ products }: { products: ProductWithSpecs[] }) {
                             </SelectTrigger>
                             <SelectContent>
                                 {availableSpecs.map((s) => (
-                                    <SelectItem key={s.id} value={s.id.toString()}>
-                                        {s.name} {s.part_number ? `(${s.part_number})` : ''}
+                                    <SelectItem
+                                        key={s.id}
+                                        value={s.id.toString()}
+                                    >
+                                        {s.name}{' '}
+                                        {s.part_number
+                                            ? `(${s.part_number})`
+                                            : ''}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -429,10 +474,14 @@ function AddPriceDialog({ products }: { products: ProductWithSpecs[] }) {
                                 id="create_group"
                                 placeholder="e.g. OEM Procurement"
                                 value={data.group}
-                                onChange={(e) => setData('group', e.target.value)}
+                                onChange={(e) =>
+                                    setData('group', e.target.value)
+                                }
                             />
                             {errors.group && (
-                                <p className="text-xs font-medium text-red-500">{errors.group}</p>
+                                <p className="text-xs font-medium text-red-500">
+                                    {errors.group}
+                                </p>
                             )}
                         </div>
                         <div className="space-y-1.5">
@@ -441,10 +490,14 @@ function AddPriceDialog({ products }: { products: ProductWithSpecs[] }) {
                                 id="create_vendor"
                                 placeholder="e.g. PT Supplierindo"
                                 value={data.vendor}
-                                onChange={(e) => setData('vendor', e.target.value)}
+                                onChange={(e) =>
+                                    setData('vendor', e.target.value)
+                                }
                             />
                             {errors.vendor && (
-                                <p className="text-xs font-medium text-red-500">{errors.vendor}</p>
+                                <p className="text-xs font-medium text-red-500">
+                                    {errors.vendor}
+                                </p>
                             )}
                         </div>
                     </div>
@@ -456,10 +509,14 @@ function AddPriceDialog({ products }: { products: ProductWithSpecs[] }) {
                                 id="create_currency"
                                 placeholder="IDR"
                                 value={data.currency}
-                                onChange={(e) => setData('currency', e.target.value)}
+                                onChange={(e) =>
+                                    setData('currency', e.target.value)
+                                }
                             />
                             {errors.currency && (
-                                <p className="text-xs font-medium text-red-500">{errors.currency}</p>
+                                <p className="text-xs font-medium text-red-500">
+                                    {errors.currency}
+                                </p>
                             )}
                         </div>
                         <div className="space-y-1.5">
@@ -470,21 +527,29 @@ function AddPriceDialog({ products }: { products: ProductWithSpecs[] }) {
                                 step="any"
                                 placeholder="10000"
                                 value={data.price}
-                                onChange={(e) => setData('price', e.target.value)}
+                                onChange={(e) =>
+                                    setData('price', e.target.value)
+                                }
                             />
                             {errors.price && (
-                                <p className="text-xs font-medium text-red-500">{errors.price}</p>
+                                <p className="text-xs font-medium text-red-500">
+                                    {errors.price}
+                                </p>
                             )}
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor="create_last_price">Last Price</Label>
+                            <Label htmlFor="create_last_price">
+                                Last Price
+                            </Label>
                             <Input
                                 id="create_last_price"
                                 type="number"
                                 step="any"
                                 placeholder="Optional"
                                 value={data.last_price}
-                                onChange={(e) => setData('last_price', e.target.value)}
+                                onChange={(e) =>
+                                    setData('last_price', e.target.value)
+                                }
                             />
                             {errors.last_price && (
                                 <p className="text-xs font-medium text-red-500">
@@ -498,18 +563,27 @@ function AddPriceDialog({ products }: { products: ProductWithSpecs[] }) {
                         <Label htmlFor="create_stage">Stage</Label>
                         <Select
                             value={data.stage}
-                            onValueChange={(val: Stage) => setData('stage', val)}
+                            onValueChange={(val: Stage) =>
+                                setData('stage', val)
+                            }
                         >
-                            <SelectTrigger id="create_stage" className="bg-white dark:bg-neutral-900">
+                            <SelectTrigger
+                                id="create_stage"
+                                className="bg-white dark:bg-neutral-900"
+                            >
                                 <SelectValue placeholder="Select Stage" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Revision">Revision</SelectItem>
+                                <SelectItem value="Revision">
+                                    Revision
+                                </SelectItem>
                                 <SelectItem value="Ready">Ready</SelectItem>
                             </SelectContent>
                         </Select>
                         {errors.stage && (
-                            <p className="text-xs font-medium text-red-500">{errors.stage}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.stage}
+                            </p>
                         )}
                     </div>
 
@@ -544,7 +618,8 @@ function EditPriceDialog({
 }) {
     const [open, setOpen] = useState(false);
     const initialProductId = price.product_id?.toString() || '';
-    const [selectedProductId, setSelectedProductId] = useState<string>(initialProductId);
+    const [selectedProductId, setSelectedProductId] =
+        useState<string>(initialProductId);
 
     const { data, setData, put, processing, errors, reset } = useForm({
         product_specification_id: price.product_specification_id.toString(),
@@ -556,7 +631,9 @@ function EditPriceDialog({
         stage: price.stage,
     });
 
-    const activeProduct = products.find((p) => p.id.toString() === selectedProductId);
+    const activeProduct = products.find(
+        (p) => p.id.toString() === selectedProductId,
+    );
     const availableSpecs = activeProduct?.specifications || [];
 
     const submit = (e: React.FormEvent) => {
@@ -595,7 +672,10 @@ function EditPriceDialog({
                             </SelectTrigger>
                             <SelectContent>
                                 {products.map((p) => (
-                                    <SelectItem key={p.id} value={p.id.toString()}>
+                                    <SelectItem
+                                        key={p.id}
+                                        value={p.id.toString()}
+                                    >
                                         {p.name}
                                     </SelectItem>
                                 ))}
@@ -604,10 +684,14 @@ function EditPriceDialog({
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_spec_${price.id}`}>2. Specification</Label>
+                        <Label htmlFor={`edit_spec_${price.id}`}>
+                            2. Specification
+                        </Label>
                         <Select
                             value={data.product_specification_id}
-                            onValueChange={(val) => setData('product_specification_id', val)}
+                            onValueChange={(val) =>
+                                setData('product_specification_id', val)
+                            }
                         >
                             <SelectTrigger
                                 id={`edit_spec_${price.id}`}
@@ -617,8 +701,14 @@ function EditPriceDialog({
                             </SelectTrigger>
                             <SelectContent>
                                 {availableSpecs.map((s) => (
-                                    <SelectItem key={s.id} value={s.id.toString()}>
-                                        {s.name} {s.part_number ? `(${s.part_number})` : ''}
+                                    <SelectItem
+                                        key={s.id}
+                                        value={s.id.toString()}
+                                    >
+                                        {s.name}{' '}
+                                        {s.part_number
+                                            ? `(${s.part_number})`
+                                            : ''}
                                     </SelectItem>
                                 ))}
                             </SelectContent>
@@ -632,62 +722,90 @@ function EditPriceDialog({
 
                     <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
-                            <Label htmlFor={`edit_group_${price.id}`}>Group</Label>
+                            <Label htmlFor={`edit_group_${price.id}`}>
+                                Group
+                            </Label>
                             <Input
                                 id={`edit_group_${price.id}`}
                                 value={data.group}
-                                onChange={(e) => setData('group', e.target.value)}
+                                onChange={(e) =>
+                                    setData('group', e.target.value)
+                                }
                             />
                             {errors.group && (
-                                <p className="text-xs font-medium text-red-500">{errors.group}</p>
+                                <p className="text-xs font-medium text-red-500">
+                                    {errors.group}
+                                </p>
                             )}
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor={`edit_vendor_${price.id}`}>Vendor</Label>
+                            <Label htmlFor={`edit_vendor_${price.id}`}>
+                                Vendor
+                            </Label>
                             <Input
                                 id={`edit_vendor_${price.id}`}
                                 value={data.vendor}
-                                onChange={(e) => setData('vendor', e.target.value)}
+                                onChange={(e) =>
+                                    setData('vendor', e.target.value)
+                                }
                             />
                             {errors.vendor && (
-                                <p className="text-xs font-medium text-red-500">{errors.vendor}</p>
+                                <p className="text-xs font-medium text-red-500">
+                                    {errors.vendor}
+                                </p>
                             )}
                         </div>
                     </div>
 
                     <div className="grid grid-cols-3 gap-3">
                         <div className="space-y-1.5">
-                            <Label htmlFor={`edit_currency_${price.id}`}>Currency</Label>
+                            <Label htmlFor={`edit_currency_${price.id}`}>
+                                Currency
+                            </Label>
                             <Input
                                 id={`edit_currency_${price.id}`}
                                 value={data.currency}
-                                onChange={(e) => setData('currency', e.target.value)}
+                                onChange={(e) =>
+                                    setData('currency', e.target.value)
+                                }
                             />
                             {errors.currency && (
-                                <p className="text-xs font-medium text-red-500">{errors.currency}</p>
+                                <p className="text-xs font-medium text-red-500">
+                                    {errors.currency}
+                                </p>
                             )}
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor={`edit_price_${price.id}`}>Price</Label>
+                            <Label htmlFor={`edit_price_${price.id}`}>
+                                Price
+                            </Label>
                             <Input
                                 id={`edit_price_${price.id}`}
                                 type="number"
                                 step="any"
                                 value={data.price}
-                                onChange={(e) => setData('price', e.target.value)}
+                                onChange={(e) =>
+                                    setData('price', e.target.value)
+                                }
                             />
                             {errors.price && (
-                                <p className="text-xs font-medium text-red-500">{errors.price}</p>
+                                <p className="text-xs font-medium text-red-500">
+                                    {errors.price}
+                                </p>
                             )}
                         </div>
                         <div className="space-y-1.5">
-                            <Label htmlFor={`edit_last_price_${price.id}`}>Last Price</Label>
+                            <Label htmlFor={`edit_last_price_${price.id}`}>
+                                Last Price
+                            </Label>
                             <Input
                                 id={`edit_last_price_${price.id}`}
                                 type="number"
                                 step="any"
                                 value={data.last_price}
-                                onChange={(e) => setData('last_price', e.target.value)}
+                                onChange={(e) =>
+                                    setData('last_price', e.target.value)
+                                }
                             />
                             {errors.last_price && (
                                 <p className="text-xs font-medium text-red-500">
@@ -701,7 +819,9 @@ function EditPriceDialog({
                         <Label htmlFor={`edit_stage_${price.id}`}>Stage</Label>
                         <Select
                             value={data.stage}
-                            onValueChange={(val: Stage) => setData('stage', val)}
+                            onValueChange={(val: Stage) =>
+                                setData('stage', val)
+                            }
                         >
                             <SelectTrigger
                                 id={`edit_stage_${price.id}`}
@@ -710,12 +830,16 @@ function EditPriceDialog({
                                 <SelectValue placeholder="Select Stage" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Revision">Revision</SelectItem>
+                                <SelectItem value="Revision">
+                                    Revision
+                                </SelectItem>
                                 <SelectItem value="Ready">Ready</SelectItem>
                             </SelectContent>
                         </Select>
                         {errors.stage && (
-                            <p className="text-xs font-medium text-red-500">{errors.stage}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.stage}
+                            </p>
                         )}
                     </div>
 

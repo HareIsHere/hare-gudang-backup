@@ -27,6 +27,10 @@ class DashboardController extends Controller
      */
     public function updateStatus(Request $request): RedirectResponse
     {
+        if (! $request->user()?->isAdmin()) {
+            abort(403, 'Unauthorized. Only admins and superadmins can update pipeline status.');
+        }
+
         $request->validate([
             'activity_id' => ['required', 'integer'],
             'status' => ['required', 'string', 'in:Idle,Working'],
@@ -45,7 +49,7 @@ class DashboardController extends Controller
      */
     public function updateMessage(Request $request): RedirectResponse
     {
-        if ($request->user()?->role !== 'super_admin') {
+        if (! $request->user()?->isSuperAdmin()) {
             abort(403, 'Unauthorized. Only superadmins can edit status descriptions.');
         }
 
@@ -75,7 +79,7 @@ class DashboardController extends Controller
      */
     public function resetMessages(Request $request): RedirectResponse
     {
-        if ($request->user()?->role !== 'super_admin') {
+        if (! $request->user()?->isSuperAdmin()) {
             abort(403, 'Unauthorized.');
         }
 

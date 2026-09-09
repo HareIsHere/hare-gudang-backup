@@ -1,4 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
+import type { FormEventHandler } from 'react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
@@ -10,7 +11,6 @@ import { Spinner } from '@/components/ui/spinner';
 import { register } from '@/routes';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
-import { FormEventHandler } from 'react';
 
 type Props = {
     status?: string;
@@ -73,7 +73,9 @@ export default function Login({ status, canResetPassword }: Props) {
                             id="password"
                             name="password"
                             value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
+                            onChange={(e) =>
+                                setData('password', e.target.value)
+                            }
                             required
                             tabIndex={2}
                             autoComplete="current-password"
@@ -87,7 +89,9 @@ export default function Login({ status, canResetPassword }: Props) {
                             id="remember"
                             name="remember"
                             checked={data.remember}
-                            onCheckedChange={(checked) => setData('remember', !!checked)}
+                            onCheckedChange={(checked) =>
+                                setData('remember', !!checked)
+                            }
                             tabIndex={3}
                         />
                         <Label htmlFor="remember">Remember me</Label>

@@ -21,8 +21,8 @@ import type { Project } from '@/types/master';
 
 function formatDateTime(dateStr?: string | null): string {
     if (!dateStr) {
-return '-';
-}
+        return '-';
+    }
 
     const d = new Date(dateStr);
 
@@ -43,7 +43,9 @@ export default function ProjectsDataIndex({
     projects: Project[];
 }) {
     const [searchQuery, setSearchQuery] = useState('');
-    const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
+    const [projectToDelete, setProjectToDelete] = useState<Project | null>(
+        null,
+    );
 
     const filteredProjects = projects.filter((proj) => {
         const query = searchQuery.toLowerCase();
@@ -80,7 +82,8 @@ export default function ProjectsDataIndex({
                             Projects
                         </h1>
                         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                            Manage projects, development initiatives, and progress tracking.
+                            Manage projects, development initiatives, and
+                            progress tracking.
                         </p>
                     </div>
                     <AddProjectDialog />
@@ -160,10 +163,10 @@ export default function ProjectsDataIndex({
                                         key={proj.id}
                                         className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
                                     >
-                                        <td className="px-6 py-4 text-sm font-medium text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {proj.group}
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-semibold text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-sm font-semibold whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {proj.name}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
@@ -171,7 +174,9 @@ export default function ProjectsDataIndex({
                                                 <div className="h-2 w-24 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
                                                     <div
                                                         className="h-full bg-neutral-900 transition-all dark:bg-neutral-100"
-                                                        style={{ width: `${Math.min(100, Math.max(0, proj.progress))}%` }}
+                                                        style={{
+                                                            width: `${Math.min(100, Math.max(0, proj.progress))}%`,
+                                                        }}
                                                     />
                                                 </div>
                                                 <span className="text-xs font-semibold text-neutral-700 dark:text-neutral-300">
@@ -182,26 +187,30 @@ export default function ProjectsDataIndex({
                                         <td className="max-w-xs truncate px-6 py-4 text-sm text-neutral-500 dark:text-neutral-400">
                                             {proj.description || '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {formatDateTime(proj.created_at)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {proj.creator?.name ?? '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {formatDateTime(proj.updated_at)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {proj.updater?.name ?? '-'}
                                         </td>
                                         <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                                             <div className="flex items-center justify-end gap-2">
-                                                <EditProjectDialog project={proj} />
+                                                <EditProjectDialog
+                                                    project={proj}
+                                                />
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-8 w-8 text-neutral-400 hover:text-red-600"
-                                                    onClick={() => setProjectToDelete(proj)}
+                                                    onClick={() =>
+                                                        setProjectToDelete(proj)
+                                                    }
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
@@ -239,7 +248,9 @@ export default function ProjectsDataIndex({
                         </Button>
                         <Button
                             variant="destructive"
-                            onClick={() => projectToDelete && handleDelete(projectToDelete)}
+                            onClick={() =>
+                                projectToDelete && handleDelete(projectToDelete)
+                            }
                         >
                             Confirm Delete
                         </Button>
@@ -281,7 +292,8 @@ function AddProjectDialog() {
                 <DialogHeader>
                     <DialogTitle>Add Project</DialogTitle>
                     <DialogDescription>
-                        Register a new project initiative and set initial progress.
+                        Register a new project initiative and set initial
+                        progress.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={submit} className="mt-4 space-y-4">
@@ -294,7 +306,9 @@ function AddProjectDialog() {
                             onChange={(e) => setData('group', e.target.value)}
                         />
                         {errors.group && (
-                            <p className="text-xs font-medium text-red-500">{errors.group}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.group}
+                            </p>
                         )}
                     </div>
 
@@ -307,7 +321,9 @@ function AddProjectDialog() {
                             onChange={(e) => setData('name', e.target.value)}
                         />
                         {errors.name && (
-                            <p className="text-xs font-medium text-red-500">{errors.name}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.name}
+                            </p>
                         )}
                     </div>
 
@@ -320,11 +336,16 @@ function AddProjectDialog() {
                             max="100"
                             value={data.progress.toString()}
                             onChange={(e) =>
-                                setData('progress', parseInt(e.target.value) || 0)
+                                setData(
+                                    'progress',
+                                    parseInt(e.target.value) || 0,
+                                )
                             }
                         />
                         {errors.progress && (
-                            <p className="text-xs font-medium text-red-500">{errors.progress}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.progress}
+                            </p>
                         )}
                     </div>
 
@@ -334,11 +355,15 @@ function AddProjectDialog() {
                             id="create_description"
                             placeholder="Optional notes or scope..."
                             value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
                             rows={3}
                         />
                         {errors.description && (
-                            <p className="text-xs font-medium text-red-500">{errors.description}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.description}
+                            </p>
                         )}
                     </div>
 
@@ -395,14 +420,18 @@ function EditProjectDialog({ project }: { project: Project }) {
                 </DialogHeader>
                 <form onSubmit={submit} className="mt-4 space-y-4">
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_group_${project.id}`}>Group</Label>
+                        <Label htmlFor={`edit_group_${project.id}`}>
+                            Group
+                        </Label>
                         <Input
                             id={`edit_group_${project.id}`}
                             value={data.group}
                             onChange={(e) => setData('group', e.target.value)}
                         />
                         {errors.group && (
-                            <p className="text-xs font-medium text-red-500">{errors.group}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.group}
+                            </p>
                         )}
                     </div>
 
@@ -414,12 +443,16 @@ function EditProjectDialog({ project }: { project: Project }) {
                             onChange={(e) => setData('name', e.target.value)}
                         />
                         {errors.name && (
-                            <p className="text-xs font-medium text-red-500">{errors.name}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.name}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_progress_${project.id}`}>Progress (%)</Label>
+                        <Label htmlFor={`edit_progress_${project.id}`}>
+                            Progress (%)
+                        </Label>
                         <Input
                             id={`edit_progress_${project.id}`}
                             type="number"
@@ -427,24 +460,35 @@ function EditProjectDialog({ project }: { project: Project }) {
                             max="100"
                             value={data.progress.toString()}
                             onChange={(e) =>
-                                setData('progress', parseInt(e.target.value) || 0)
+                                setData(
+                                    'progress',
+                                    parseInt(e.target.value) || 0,
+                                )
                             }
                         />
                         {errors.progress && (
-                            <p className="text-xs font-medium text-red-500">{errors.progress}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.progress}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_description_${project.id}`}>Description</Label>
+                        <Label htmlFor={`edit_description_${project.id}`}>
+                            Description
+                        </Label>
                         <Textarea
                             id={`edit_description_${project.id}`}
                             value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
                             rows={3}
                         />
                         {errors.description && (
-                            <p className="text-xs font-medium text-red-500">{errors.description}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.description}
+                            </p>
                         )}
                     </div>
 

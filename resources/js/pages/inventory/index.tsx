@@ -202,13 +202,20 @@ export default function InventoryIndex({
                                                             variant="outline"
                                                             className="h-5 rounded border-blue-200 bg-blue-50 px-1.5 py-0 text-[10px] font-normal text-blue-700 dark:border-blue-900 dark:bg-blue-950/40 dark:text-blue-300"
                                                         >
-                                                            Spec: {item.specification.name}
+                                                            Spec:{' '}
+                                                            {
+                                                                item
+                                                                    .specification
+                                                                    .name
+                                                            }
                                                         </Badge>
                                                     )}
                                                     {isAdmin ? (
                                                         <EditCategoryDialog
                                                             item={item}
-                                                            categories={categories}
+                                                            categories={
+                                                                categories
+                                                            }
                                                         />
                                                     ) : (
                                                         item.category && (
@@ -228,7 +235,7 @@ export default function InventoryIndex({
                                                     item.inventories.length >
                                                         0 ? (
                                                         item.inventories.map(
-                                                             (inv) => (
+                                                            (inv) => (
                                                                 <Badge
                                                                     key={inv.id}
                                                                     variant="secondary"
@@ -376,7 +383,8 @@ function AddItemDialog({
                 <DialogHeader>
                     <DialogTitle>Add New Product</DialogTitle>
                     <DialogDescription>
-                        Select a product from Feature Master or create custom stock.
+                        Select a product from Feature Master or create custom
+                        stock.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={submit} className="mt-4 space-y-4">
@@ -512,9 +520,7 @@ function AddItemDialog({
                             <WarehouseInput
                                 id="warehouse_id"
                                 value={data.warehouse_id}
-                                onChange={(val) =>
-                                    setData('warehouse_id', val)
-                                }
+                                onChange={(val) => setData('warehouse_id', val)}
                                 warehouses={warehouses}
                                 error={errors.warehouse_id}
                             />
@@ -775,7 +781,8 @@ function EditItemDialog({
                 <DialogHeader>
                     <DialogTitle>Edit Product</DialogTitle>
                     <DialogDescription>
-                        Update product details, master reference, or adjust stock.
+                        Update product details, master reference, or adjust
+                        stock.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={submit} className="mt-4 space-y-5">
@@ -1031,7 +1038,8 @@ function ManageWarehousesDialog({
                 <DialogHeader>
                     <DialogTitle>Manage Warehouses</DialogTitle>
                     <DialogDescription>
-                        Add new warehouses linked to Feature Master Worksites or manage existing ones.
+                        Add new warehouses linked to Feature Master Worksites or
+                        manage existing ones.
                     </DialogDescription>
                 </DialogHeader>
 
@@ -1145,7 +1153,10 @@ function ManageWarehousesDialog({
                                                         variant="outline"
                                                         className="h-4 border-indigo-200 bg-indigo-50 px-1 text-[9px] font-normal text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-300"
                                                     >
-                                                        {warehouse.worksite.name}
+                                                        {
+                                                            warehouse.worksite
+                                                                .name
+                                                        }
                                                     </Badge>
                                                 )}
                                             </div>
@@ -1296,7 +1307,7 @@ function CategoryInput({
     const [activeIndex, setActiveIndex] = useState(-1);
 
     const filtered = categories.filter((cat) =>
-        cat.toLowerCase().includes(value.toLowerCase())
+        cat.toLowerCase().includes(value.toLowerCase()),
     );
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -1304,8 +1315,8 @@ function CategoryInput({
             e.preventDefault();
             setActiveIndex((prev) => {
                 if (!filtered.length) {
-return -1;
-}
+                    return -1;
+                }
 
                 return (prev + 1) % filtered.length;
             });
@@ -1313,12 +1324,12 @@ return -1;
             e.preventDefault();
             setActiveIndex((prev) => {
                 if (!filtered.length) {
-return -1;
-}
+                    return -1;
+                }
 
                 if (prev <= 0) {
-return filtered.length - 1;
-}
+                    return filtered.length - 1;
+                }
 
                 return prev - 1;
             });
@@ -1328,8 +1339,8 @@ return filtered.length - 1;
                 setActiveIndex((prev) => {
                     if (e.shiftKey) {
                         if (prev <= 0) {
-return filtered.length - 1;
-}
+                            return filtered.length - 1;
+                        }
 
                         return prev - 1;
                     } else {
@@ -1338,7 +1349,12 @@ return filtered.length - 1;
                 });
             }
         } else if (e.key === 'Enter') {
-            if (isOpen && filtered.length > 0 && activeIndex >= 0 && activeIndex < filtered.length) {
+            if (
+                isOpen &&
+                filtered.length > 0 &&
+                activeIndex >= 0 &&
+                activeIndex < filtered.length
+            ) {
                 e.preventDefault();
                 onChange(filtered[activeIndex]);
                 setIsOpen(false);
@@ -1417,21 +1433,22 @@ function WarehouseInput({
     const [activeIndex, setActiveIndex] = useState(-1);
 
     const selectedWarehouse = warehouses.find((w) => w.id.toString() === value);
-    const displayValue = isOpen ? searchQuery : (selectedWarehouse?.name || '');
+    const displayValue = isOpen ? searchQuery : selectedWarehouse?.name || '';
 
-    const filtered = searchQuery === (selectedWarehouse?.name || '')
-        ? warehouses
-        : warehouses.filter((w) =>
-            w.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
+    const filtered =
+        searchQuery === (selectedWarehouse?.name || '')
+            ? warehouses
+            : warehouses.filter((w) =>
+                  w.name.toLowerCase().includes(searchQuery.toLowerCase()),
+              );
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             setActiveIndex((prev) => {
                 if (!filtered.length) {
-return -1;
-}
+                    return -1;
+                }
 
                 return (prev + 1) % filtered.length;
             });
@@ -1439,12 +1456,12 @@ return -1;
             e.preventDefault();
             setActiveIndex((prev) => {
                 if (!filtered.length) {
-return -1;
-}
+                    return -1;
+                }
 
                 if (prev <= 0) {
-return filtered.length - 1;
-}
+                    return filtered.length - 1;
+                }
 
                 return prev - 1;
             });
@@ -1454,8 +1471,8 @@ return filtered.length - 1;
                 setActiveIndex((prev) => {
                     if (e.shiftKey) {
                         if (prev <= 0) {
-return filtered.length - 1;
-}
+                            return filtered.length - 1;
+                        }
 
                         return prev - 1;
                     } else {
@@ -1464,7 +1481,12 @@ return filtered.length - 1;
                 });
             }
         } else if (e.key === 'Enter') {
-            if (isOpen && filtered.length > 0 && activeIndex >= 0 && activeIndex < filtered.length) {
+            if (
+                isOpen &&
+                filtered.length > 0 &&
+                activeIndex >= 0 &&
+                activeIndex < filtered.length
+            ) {
                 e.preventDefault();
                 onChange(filtered[activeIndex].id.toString());
                 setIsOpen(false);

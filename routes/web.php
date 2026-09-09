@@ -18,9 +18,9 @@ Route::inertia('/', 'welcome')->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::patch('dashboard/status', [DashboardController::class, 'updateStatus'])->name('dashboard.update-status');
-    Route::post('dashboard/message', [DashboardController::class, 'updateMessage'])->name('dashboard.update-message');
-    Route::post('dashboard/reset', [DashboardController::class, 'resetMessages'])->name('dashboard.reset-messages');
+    Route::patch('dashboard/status', [DashboardController::class, 'updateStatus'])->middleware('admin')->name('dashboard.update-status');
+    Route::post('dashboard/message', [DashboardController::class, 'updateMessage'])->middleware('super_admin')->name('dashboard.update-message');
+    Route::post('dashboard/reset', [DashboardController::class, 'resetMessages'])->middleware('super_admin')->name('dashboard.reset-messages');
 
     // Inventory listing for everyone
     Route::get('/inventory', [ItemController::class, 'index'])->name('inventory.index');

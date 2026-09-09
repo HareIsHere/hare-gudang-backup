@@ -125,7 +125,12 @@ export default function RequestsIndex({
                                                                 variant="outline"
                                                                 className="h-4 border-purple-200 bg-purple-50 px-1 text-[9px] font-normal text-purple-700 dark:border-purple-900 dark:bg-purple-950/40 dark:text-purple-300"
                                                             >
-                                                                Project: {request.project.name}
+                                                                Project:{' '}
+                                                                {
+                                                                    request
+                                                                        .project
+                                                                        .name
+                                                                }
                                                             </Badge>
                                                         )}
                                                         {request.worksite && (
@@ -133,7 +138,12 @@ export default function RequestsIndex({
                                                                 variant="outline"
                                                                 className="h-4 border-indigo-200 bg-indigo-50 px-1 text-[9px] font-normal text-indigo-700 dark:border-indigo-900 dark:bg-indigo-950/40 dark:text-indigo-300"
                                                             >
-                                                                Site: {request.worksite.name}
+                                                                Site:{' '}
+                                                                {
+                                                                    request
+                                                                        .worksite
+                                                                        .name
+                                                                }
                                                             </Badge>
                                                         )}
                                                     </div>
@@ -398,10 +408,7 @@ function NewRequestForm({
                     <Select
                         value={data.project_id}
                         onValueChange={(val) =>
-                            setData(
-                                'project_id',
-                                val === '__none__' ? '' : val,
-                            )
+                            setData('project_id', val === '__none__' ? '' : val)
                         }
                     >
                         <SelectTrigger id="project_id" className="rounded-lg">

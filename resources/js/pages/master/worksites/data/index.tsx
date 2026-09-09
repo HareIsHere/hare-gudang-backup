@@ -30,8 +30,8 @@ import type { Worksite, Stage } from '@/types/master';
 
 function formatDateTime(dateStr?: string | null): string {
     if (!dateStr) {
-return '-';
-}
+        return '-';
+    }
 
     const d = new Date(dateStr);
 
@@ -54,7 +54,9 @@ export default function WorksiteDataIndex({
     categories: { id: number; name: string; group?: string }[];
 }) {
     const [searchQuery, setSearchQuery] = useState('');
-    const [worksiteToDelete, setWorksiteToDelete] = useState<Worksite | null>(null);
+    const [worksiteToDelete, setWorksiteToDelete] = useState<Worksite | null>(
+        null,
+    );
 
     const filteredWorksites = worksites.filter((ws) => {
         const query = searchQuery.toLowerCase();
@@ -62,7 +64,8 @@ export default function WorksiteDataIndex({
         return (
             ws.name.toLowerCase().includes(query) ||
             ws.group.toLowerCase().includes(query) ||
-            (ws.category?.name && ws.category.name.toLowerCase().includes(query)) ||
+            (ws.category?.name &&
+                ws.category.name.toLowerCase().includes(query)) ||
             (ws.address && ws.address.toLowerCase().includes(query)) ||
             (ws.description && ws.description.toLowerCase().includes(query))
         );
@@ -98,7 +101,8 @@ export default function WorksiteDataIndex({
                             Worksite
                         </h1>
                         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                            Manage worksite locations, facilities, and project sites.
+                            Manage worksite locations, facilities, and project
+                            sites.
                         </p>
                     </div>
                     <AddWorksiteDialog categories={categories} />
@@ -187,16 +191,16 @@ export default function WorksiteDataIndex({
                                         key={ws.id}
                                         className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
                                     >
-                                        <td className="px-6 py-4 text-xs font-mono text-neutral-500 whitespace-nowrap">
+                                        <td className="px-6 py-4 font-mono text-xs whitespace-nowrap text-neutral-500">
                                             #{ws.id}
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-medium text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {ws.group}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-700 whitespace-nowrap dark:text-neutral-300">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-700 dark:text-neutral-300">
                                             {ws.category?.name || '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-semibold text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-sm font-semibold whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {ws.name}
                                         </td>
                                         <td className="max-w-xs truncate px-6 py-4 text-sm text-neutral-600 dark:text-neutral-300">
@@ -208,26 +212,31 @@ export default function WorksiteDataIndex({
                                         <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <StageBadge stage={ws.stage} />
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {formatDateTime(ws.created_at)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {ws.creator?.name ?? '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {formatDateTime(ws.updated_at)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {ws.updater?.name ?? '-'}
                                         </td>
                                         <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                                             <div className="flex items-center justify-end gap-2">
-                                                <EditWorksiteDialog worksite={ws} categories={categories} />
+                                                <EditWorksiteDialog
+                                                    worksite={ws}
+                                                    categories={categories}
+                                                />
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-8 w-8 text-neutral-400 hover:text-red-600"
-                                                    onClick={() => setWorksiteToDelete(ws)}
+                                                    onClick={() =>
+                                                        setWorksiteToDelete(ws)
+                                                    }
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
@@ -265,7 +274,10 @@ export default function WorksiteDataIndex({
                         </Button>
                         <Button
                             variant="destructive"
-                            onClick={() => worksiteToDelete && handleDelete(worksiteToDelete)}
+                            onClick={() =>
+                                worksiteToDelete &&
+                                handleDelete(worksiteToDelete)
+                            }
                         >
                             Confirm Delete
                         </Button>
@@ -326,7 +338,9 @@ function AddWorksiteDialog({
                             onChange={(e) => setData('group', e.target.value)}
                         />
                         {errors.group && (
-                            <p className="text-xs font-medium text-red-500">{errors.group}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.group}
+                            </p>
                         )}
                     </div>
 
@@ -334,14 +348,22 @@ function AddWorksiteDialog({
                         <Label htmlFor="create_category">Category</Label>
                         <Select
                             value={data.worksite_category_id}
-                            onValueChange={(val) => setData('worksite_category_id', val)}
+                            onValueChange={(val) =>
+                                setData('worksite_category_id', val)
+                            }
                         >
-                            <SelectTrigger id="create_category" className="bg-white dark:bg-neutral-900">
+                            <SelectTrigger
+                                id="create_category"
+                                className="bg-white dark:bg-neutral-900"
+                            >
                                 <SelectValue placeholder="Select Category (Optional)" />
                             </SelectTrigger>
                             <SelectContent>
                                 {categories.map((c) => (
-                                    <SelectItem key={c.id} value={c.id.toString()}>
+                                    <SelectItem
+                                        key={c.id}
+                                        value={c.id.toString()}
+                                    >
                                         {c.name}
                                     </SelectItem>
                                 ))}
@@ -363,7 +385,9 @@ function AddWorksiteDialog({
                             onChange={(e) => setData('name', e.target.value)}
                         />
                         {errors.name && (
-                            <p className="text-xs font-medium text-red-500">{errors.name}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.name}
+                            </p>
                         )}
                     </div>
 
@@ -376,7 +400,9 @@ function AddWorksiteDialog({
                             onChange={(e) => setData('address', e.target.value)}
                         />
                         {errors.address && (
-                            <p className="text-xs font-medium text-red-500">{errors.address}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.address}
+                            </p>
                         )}
                     </div>
 
@@ -386,11 +412,15 @@ function AddWorksiteDialog({
                             id="create_description"
                             placeholder="Optional notes or details..."
                             value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
                             rows={3}
                         />
                         {errors.description && (
-                            <p className="text-xs font-medium text-red-500">{errors.description}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.description}
+                            </p>
                         )}
                     </div>
 
@@ -398,18 +428,27 @@ function AddWorksiteDialog({
                         <Label htmlFor="create_stage">Stage</Label>
                         <Select
                             value={data.stage}
-                            onValueChange={(val: Stage) => setData('stage', val)}
+                            onValueChange={(val: Stage) =>
+                                setData('stage', val)
+                            }
                         >
-                            <SelectTrigger id="create_stage" className="bg-white dark:bg-neutral-900">
+                            <SelectTrigger
+                                id="create_stage"
+                                className="bg-white dark:bg-neutral-900"
+                            >
                                 <SelectValue placeholder="Select Stage" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Revision">Revision</SelectItem>
+                                <SelectItem value="Revision">
+                                    Revision
+                                </SelectItem>
                                 <SelectItem value="Ready">Ready</SelectItem>
                             </SelectContent>
                         </Select>
                         {errors.stage && (
-                            <p className="text-xs font-medium text-red-500">{errors.stage}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.stage}
+                            </p>
                         )}
                     </div>
 
@@ -474,22 +513,30 @@ function EditWorksiteDialog({
                 </DialogHeader>
                 <form onSubmit={submit} className="mt-4 space-y-4">
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_group_${worksite.id}`}>Group</Label>
+                        <Label htmlFor={`edit_group_${worksite.id}`}>
+                            Group
+                        </Label>
                         <Input
                             id={`edit_group_${worksite.id}`}
                             value={data.group}
                             onChange={(e) => setData('group', e.target.value)}
                         />
                         {errors.group && (
-                            <p className="text-xs font-medium text-red-500">{errors.group}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.group}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_category_${worksite.id}`}>Category</Label>
+                        <Label htmlFor={`edit_category_${worksite.id}`}>
+                            Category
+                        </Label>
                         <Select
                             value={data.worksite_category_id}
-                            onValueChange={(val) => setData('worksite_category_id', val)}
+                            onValueChange={(val) =>
+                                setData('worksite_category_id', val)
+                            }
                         >
                             <SelectTrigger
                                 id={`edit_category_${worksite.id}`}
@@ -499,7 +546,10 @@ function EditWorksiteDialog({
                             </SelectTrigger>
                             <SelectContent>
                                 {categories.map((c) => (
-                                    <SelectItem key={c.id} value={c.id.toString()}>
+                                    <SelectItem
+                                        key={c.id}
+                                        value={c.id.toString()}
+                                    >
                                         {c.name}
                                     </SelectItem>
                                 ))}
@@ -520,40 +570,56 @@ function EditWorksiteDialog({
                             onChange={(e) => setData('name', e.target.value)}
                         />
                         {errors.name && (
-                            <p className="text-xs font-medium text-red-500">{errors.name}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.name}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_address_${worksite.id}`}>Address</Label>
+                        <Label htmlFor={`edit_address_${worksite.id}`}>
+                            Address
+                        </Label>
                         <Input
                             id={`edit_address_${worksite.id}`}
                             value={data.address}
                             onChange={(e) => setData('address', e.target.value)}
                         />
                         {errors.address && (
-                            <p className="text-xs font-medium text-red-500">{errors.address}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.address}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_description_${worksite.id}`}>Description</Label>
+                        <Label htmlFor={`edit_description_${worksite.id}`}>
+                            Description
+                        </Label>
                         <Textarea
                             id={`edit_description_${worksite.id}`}
                             value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
                             rows={3}
                         />
                         {errors.description && (
-                            <p className="text-xs font-medium text-red-500">{errors.description}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.description}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_stage_${worksite.id}`}>Stage</Label>
+                        <Label htmlFor={`edit_stage_${worksite.id}`}>
+                            Stage
+                        </Label>
                         <Select
                             value={data.stage}
-                            onValueChange={(val: Stage) => setData('stage', val)}
+                            onValueChange={(val: Stage) =>
+                                setData('stage', val)
+                            }
                         >
                             <SelectTrigger
                                 id={`edit_stage_${worksite.id}`}
@@ -562,12 +628,16 @@ function EditWorksiteDialog({
                                 <SelectValue placeholder="Select Stage" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Revision">Revision</SelectItem>
+                                <SelectItem value="Revision">
+                                    Revision
+                                </SelectItem>
                                 <SelectItem value="Ready">Ready</SelectItem>
                             </SelectContent>
                         </Select>
                         {errors.stage && (
-                            <p className="text-xs font-medium text-red-500">{errors.stage}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.stage}
+                            </p>
                         )}
                     </div>
 

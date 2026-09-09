@@ -1,4 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
+import type { FormEventHandler } from 'react';
 import InputError from '@/components/input-error';
 import PasswordInput from '@/components/password-input';
 import TextLink from '@/components/text-link';
@@ -8,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
 import { login } from '@/routes';
 import { store } from '@/routes/register';
-import { FormEventHandler } from 'react';
 
 type Props = {
     passwordRules: string;
@@ -50,10 +50,7 @@ export default function Register({ passwordRules }: Props) {
                             onChange={(e) => setData('name', e.target.value)}
                             placeholder="Full name"
                         />
-                        <InputError
-                            message={errors.name}
-                            className="mt-2"
-                        />
+                        <InputError message={errors.name} className="mt-2" />
                     </div>
 
                     <div className="grid gap-2">
@@ -81,7 +78,9 @@ export default function Register({ passwordRules }: Props) {
                             autoComplete="new-password"
                             name="password"
                             value={data.password}
-                            onChange={(e) => setData('password', e.target.value)}
+                            onChange={(e) =>
+                                setData('password', e.target.value)
+                            }
                             placeholder="Password"
                             passwordrules={passwordRules}
                         />
@@ -99,13 +98,13 @@ export default function Register({ passwordRules }: Props) {
                             autoComplete="new-password"
                             name="password_confirmation"
                             value={data.password_confirmation}
-                            onChange={(e) => setData('password_confirmation', e.target.value)}
+                            onChange={(e) =>
+                                setData('password_confirmation', e.target.value)
+                            }
                             placeholder="Confirm password"
                             passwordrules={passwordRules}
                         />
-                        <InputError
-                            message={errors.password_confirmation}
-                        />
+                        <InputError message={errors.password_confirmation} />
                     </div>
 
                     <Button

@@ -31,8 +31,8 @@ import type { Product, Stage } from '@/types/master';
 
 function formatDateTime(dateStr?: string | null): string {
     if (!dateStr) {
-return '-';
-}
+        return '-';
+    }
 
     const d = new Date(dateStr);
 
@@ -53,7 +53,9 @@ export default function ProductsDataIndex({
     products: Product[];
 }) {
     const [searchQuery, setSearchQuery] = useState('');
-    const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+    const [productToDelete, setProductToDelete] = useState<Product | null>(
+        null,
+    );
 
     const filteredProducts = products.filter((prod) => {
         const query = searchQuery.toLowerCase();
@@ -96,7 +98,8 @@ export default function ProductsDataIndex({
                             Products
                         </h1>
                         <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                            Manage product catalog, specifications, and related pricing.
+                            Manage product catalog, specifications, and related
+                            pricing.
                         </p>
                     </div>
                     <AddProductDialog />
@@ -185,22 +188,28 @@ export default function ProductsDataIndex({
                                         key={prod.id}
                                         className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
                                     >
-                                        <td className="px-6 py-4 text-xs font-mono text-neutral-500 whitespace-nowrap">
+                                        <td className="px-6 py-4 font-mono text-xs whitespace-nowrap text-neutral-500">
                                             #{prod.id}
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-medium text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {prod.group}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-700 whitespace-nowrap dark:text-neutral-300">
-                                            <Badge variant="secondary" className="font-normal text-xs">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-700 dark:text-neutral-300">
+                                            <Badge
+                                                variant="secondary"
+                                                className="text-xs font-normal"
+                                            >
                                                 {prod.category}
                                             </Badge>
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-semibold text-neutral-900 whitespace-nowrap dark:text-neutral-100">
+                                        <td className="px-6 py-4 text-sm font-semibold whitespace-nowrap text-neutral-900 dark:text-neutral-100">
                                             {prod.name}
                                         </td>
                                         <td className="px-6 py-4 text-center whitespace-nowrap">
-                                            <Badge variant="outline" className="px-2 py-0.5 text-xs font-semibold">
+                                            <Badge
+                                                variant="outline"
+                                                className="px-2 py-0.5 text-xs font-semibold"
+                                            >
                                                 {prod.specifications_count ?? 0}
                                             </Badge>
                                         </td>
@@ -210,26 +219,30 @@ export default function ProductsDataIndex({
                                         <td className="px-6 py-4 text-center whitespace-nowrap">
                                             <StageBadge stage={prod.stage} />
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {formatDateTime(prod.created_at)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {prod.creator?.name ?? '-'}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {formatDateTime(prod.updated_at)}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-neutral-500 whitespace-nowrap dark:text-neutral-400">
+                                        <td className="px-6 py-4 text-sm whitespace-nowrap text-neutral-500 dark:text-neutral-400">
                                             {prod.updater?.name ?? '-'}
                                         </td>
                                         <td className="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
                                             <div className="flex items-center justify-end gap-2">
-                                                <EditProductDialog product={prod} />
+                                                <EditProductDialog
+                                                    product={prod}
+                                                />
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     className="h-8 w-8 text-neutral-400 hover:text-red-600"
-                                                    onClick={() => setProductToDelete(prod)}
+                                                    onClick={() =>
+                                                        setProductToDelete(prod)
+                                                    }
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
@@ -255,7 +268,8 @@ export default function ProductsDataIndex({
                             <span className="font-semibold text-neutral-900 dark:text-neutral-50">
                                 {productToDelete?.name}
                             </span>
-                            ? This will also remove associated specifications and prices.
+                            ? This will also remove associated specifications
+                            and prices.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="mt-4 flex justify-end gap-2">
@@ -267,7 +281,9 @@ export default function ProductsDataIndex({
                         </Button>
                         <Button
                             variant="destructive"
-                            onClick={() => productToDelete && handleDelete(productToDelete)}
+                            onClick={() =>
+                                productToDelete && handleDelete(productToDelete)
+                            }
                         >
                             Confirm Delete
                         </Button>
@@ -323,7 +339,9 @@ function AddProductDialog() {
                             onChange={(e) => setData('group', e.target.value)}
                         />
                         {errors.group && (
-                            <p className="text-xs font-medium text-red-500">{errors.group}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.group}
+                            </p>
                         )}
                     </div>
 
@@ -333,10 +351,14 @@ function AddProductDialog() {
                             id="create_category"
                             placeholder="e.g. Filters"
                             value={data.category}
-                            onChange={(e) => setData('category', e.target.value)}
+                            onChange={(e) =>
+                                setData('category', e.target.value)
+                            }
                         />
                         {errors.category && (
-                            <p className="text-xs font-medium text-red-500">{errors.category}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.category}
+                            </p>
                         )}
                     </div>
 
@@ -349,7 +371,9 @@ function AddProductDialog() {
                             onChange={(e) => setData('name', e.target.value)}
                         />
                         {errors.name && (
-                            <p className="text-xs font-medium text-red-500">{errors.name}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.name}
+                            </p>
                         )}
                     </div>
 
@@ -359,11 +383,15 @@ function AddProductDialog() {
                             id="create_description"
                             placeholder="Optional description..."
                             value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
                             rows={3}
                         />
                         {errors.description && (
-                            <p className="text-xs font-medium text-red-500">{errors.description}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.description}
+                            </p>
                         )}
                     </div>
 
@@ -371,18 +399,27 @@ function AddProductDialog() {
                         <Label htmlFor="create_stage">Stage</Label>
                         <Select
                             value={data.stage}
-                            onValueChange={(val: Stage) => setData('stage', val)}
+                            onValueChange={(val: Stage) =>
+                                setData('stage', val)
+                            }
                         >
-                            <SelectTrigger id="create_stage" className="bg-white dark:bg-neutral-900">
+                            <SelectTrigger
+                                id="create_stage"
+                                className="bg-white dark:bg-neutral-900"
+                            >
                                 <SelectValue placeholder="Select Stage" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Revision">Revision</SelectItem>
+                                <SelectItem value="Revision">
+                                    Revision
+                                </SelectItem>
                                 <SelectItem value="Ready">Ready</SelectItem>
                             </SelectContent>
                         </Select>
                         {errors.stage && (
-                            <p className="text-xs font-medium text-red-500">{errors.stage}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.stage}
+                            </p>
                         )}
                     </div>
 
@@ -440,26 +477,36 @@ function EditProductDialog({ product }: { product: Product }) {
                 </DialogHeader>
                 <form onSubmit={submit} className="mt-4 space-y-4">
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_group_${product.id}`}>Group</Label>
+                        <Label htmlFor={`edit_group_${product.id}`}>
+                            Group
+                        </Label>
                         <Input
                             id={`edit_group_${product.id}`}
                             value={data.group}
                             onChange={(e) => setData('group', e.target.value)}
                         />
                         {errors.group && (
-                            <p className="text-xs font-medium text-red-500">{errors.group}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.group}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_category_${product.id}`}>Category</Label>
+                        <Label htmlFor={`edit_category_${product.id}`}>
+                            Category
+                        </Label>
                         <Input
                             id={`edit_category_${product.id}`}
                             value={data.category}
-                            onChange={(e) => setData('category', e.target.value)}
+                            onChange={(e) =>
+                                setData('category', e.target.value)
+                            }
                         />
                         {errors.category && (
-                            <p className="text-xs font-medium text-red-500">{errors.category}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.category}
+                            </p>
                         )}
                     </div>
 
@@ -471,39 +518,58 @@ function EditProductDialog({ product }: { product: Product }) {
                             onChange={(e) => setData('name', e.target.value)}
                         />
                         {errors.name && (
-                            <p className="text-xs font-medium text-red-500">{errors.name}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.name}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_description_${product.id}`}>Description</Label>
+                        <Label htmlFor={`edit_description_${product.id}`}>
+                            Description
+                        </Label>
                         <Textarea
                             id={`edit_description_${product.id}`}
                             value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
                             rows={3}
                         />
                         {errors.description && (
-                            <p className="text-xs font-medium text-red-500">{errors.description}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.description}
+                            </p>
                         )}
                     </div>
 
                     <div className="space-y-1.5">
-                        <Label htmlFor={`edit_stage_${product.id}`}>Stage</Label>
+                        <Label htmlFor={`edit_stage_${product.id}`}>
+                            Stage
+                        </Label>
                         <Select
                             value={data.stage}
-                            onValueChange={(val: Stage) => setData('stage', val)}
+                            onValueChange={(val: Stage) =>
+                                setData('stage', val)
+                            }
                         >
-                            <SelectTrigger id={`edit_stage_${product.id}`} className="bg-white dark:bg-neutral-900">
+                            <SelectTrigger
+                                id={`edit_stage_${product.id}`}
+                                className="bg-white dark:bg-neutral-900"
+                            >
                                 <SelectValue placeholder="Select Stage" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="Revision">Revision</SelectItem>
+                                <SelectItem value="Revision">
+                                    Revision
+                                </SelectItem>
                                 <SelectItem value="Ready">Ready</SelectItem>
                             </SelectContent>
                         </Select>
                         {errors.stage && (
-                            <p className="text-xs font-medium text-red-500">{errors.stage}</p>
+                            <p className="text-xs font-medium text-red-500">
+                                {errors.stage}
+                            </p>
                         )}
                     </div>
 
