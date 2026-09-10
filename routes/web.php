@@ -58,7 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Feature Master routes
-    Route::prefix('master')->name('master.')->group(function () {
+    Route::middleware(['verified', 'admin'])->prefix('master')->name('master.')->group(function () {
         Route::redirect('/', '/master/worksites/categories')->name('index');
         Route::redirect('worksites', '/master/worksites/categories')->name('worksites.index');
         Route::redirect('projects', '/master/projects/data')->name('projects.index');
