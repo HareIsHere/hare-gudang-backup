@@ -321,6 +321,179 @@ export default function InventoryIndex({
     );
 }
 
+function MasterProductSelector({
+    products,
+    value,
+    onSelect,
+    error,
+}: {
+    products: Product[];
+    value: string;
+    onSelect: (prod: Product | null) => void;
+    error?: string;
+}) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [activeIndex, setActiveIndex] = useState(-1);
+
+    const selectedProduct = products.find((p) => p.id.toString() === value);
+    const displayValue = isOpen
+        ? searchQuery
+        : selectedProduct
+          ? `${selectedProduct.name}${selectedProduct.category ? ` (${selectedProduct.category})` : ''}`
+          : '';
+
+    const filtered =
+        searchQuery === '' || searchQuery === (selectedProduct?.name || '')
+            ? products
+            : products.filter(
+                  (p) =>
+                      p.name
+                          .toLowerCase()
+                          .includes(searchQuery.toLowerCase()) ||
+                      (p.category &&
+                          p.category
+                              .toLowerCase()
+                              .includes(searchQuery.toLowerCase())),
+              );
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setActiveIndex((prev) => {
+                if (!filtered.length) {
+                    return -1;
+                }
+
+                return (prev + 1) % filtered.length;
+            });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setActiveIndex((prev) => {
+                if (!filtered.length) {
+                    return -1;
+                }
+
+                if (prev <= 0) {
+                    return filtered.length - 1;
+                }
+
+                return prev - 1;
+            });
+        } else if (e.key === 'Tab') {
+            if (isOpen && filtered.length > 0) {
+                e.preventDefault();
+                setActiveIndex((prev) => {
+                    if (e.shiftKey) {
+                        if (prev <= 0) {
+                            return filtered.length - 1;
+                        }
+
+                        return prev - 1;
+                    }
+
+                    return (prev + 1) % filtered.length;
+                });
+            }
+        } else if (e.key === 'Enter') {
+            if (
+                isOpen &&
+                filtered.length > 0 &&
+                activeIndex >= 0 &&
+                activeIndex < filtered.length
+            ) {
+                e.preventDefault();
+                onSelect(filtered[activeIndex]);
+                setIsOpen(false);
+            }
+        } else if (e.key === 'Escape') {
+            setIsOpen(false);
+        }
+    };
+
+    return (
+        <div className="relative">
+            <div className="relative flex items-center">
+                <Search className="pointer-events-none absolute left-3 h-4 w-4 text-neutral-400" />
+                <Input
+                    id="master_product_select"
+                    placeholder="Search master product by name or category..."
+                    value={displayValue}
+                    onChange={(e) => {
+                        setSearchQuery(e.target.value);
+                        setIsOpen(true);
+                        setActiveIndex(-1);
+                    }}
+                    onFocus={() => {
+                        setSearchQuery('');
+                        setIsOpen(true);
+                        setActiveIndex(-1);
+                    }}
+                    onBlur={() => {
+                        setTimeout(() => setIsOpen(false), 200);
+                    }}
+                    onKeyDown={handleKeyDown}
+                    autoComplete="off"
+                    className="bg-white pr-8 pl-9 dark:bg-neutral-900"
+                />
+                {selectedProduct && !isOpen && (
+                    <button
+                        type="button"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onSelect(null);
+                            setSearchQuery('');
+                        }}
+                        className="absolute right-2.5 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200"
+                        title="Clear selection"
+                    >
+                        <X className="h-4 w-4" />
+                    </button>
+                )}
+            </div>
+            {isOpen && (
+                <div className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-md border border-neutral-200 bg-white p-1 shadow-lg dark:border-neutral-800 dark:bg-neutral-900">
+                    {filtered.length > 0 ? (
+                        filtered.map((p, idx) => (
+                            <div
+                                key={p.id}
+                                className={`flex cursor-pointer items-center justify-between rounded-sm px-2.5 py-1.5 text-sm transition-colors ${
+                                    idx === activeIndex
+                                        ? 'bg-neutral-100 text-neutral-900 dark:bg-neutral-800 dark:text-neutral-50'
+                                        : 'text-neutral-700 hover:bg-neutral-50 dark:text-neutral-300 dark:hover:bg-neutral-800/50'
+                                }`}
+                                onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    onSelect(p);
+                                    setIsOpen(false);
+                                }}
+                            >
+                                <span className="font-medium text-neutral-900 dark:text-neutral-100">
+                                    {p.name}
+                                </span>
+                                {p.category && (
+                                    <span className="text-xs text-neutral-400 dark:text-neutral-500">
+                                        {p.category}
+                                    </span>
+                                )}
+                            </div>
+                        ))
+                    ) : (
+                        <div className="p-3 text-center text-xs text-neutral-500 dark:text-neutral-400">
+                            No matching products found
+                        </div>
+                    )}
+                </div>
+            )}
+            {error && (
+                <p className="mt-1.5 text-xs font-medium text-red-500">
+                    {error}
+                </p>
+            )}
+        </div>
+    );
+}
+
 function AddItemDialog({
     warehouses,
     categories,
@@ -331,48 +504,103 @@ function AddItemDialog({
     masterProducts?: Product[];
 }) {
     const [open, setOpen] = useState(false);
-    const [useCustomProduct, setUseCustomProduct] = useState(false);
-    const { data, setData, post, processing, errors, reset } = useForm({
-        product_id: '',
-        product_specification_id: '',
-        item_name: '',
-        category: '',
-        warehouse_id: '',
-        initial_quantity: 0,
-    });
+    const [mode, setMode] = useState<'new' | 'master'>('new');
+    const [masterError, setMasterError] = useState<string | null>(null);
+    const { data, setData, post, processing, errors, reset, clearErrors } =
+        useForm({
+            product_id: '',
+            product_specification_id: '',
+            item_name: '',
+            category: '',
+            warehouse_id: '',
+            initial_quantity: 0,
+        });
 
     const selectedMasterProduct = masterProducts.find(
         (p) => p.id.toString() === data.product_id,
     );
     const availableSpecs = selectedMasterProduct?.specifications || [];
 
-    const handleMasterProductSelect = (productId: string) => {
-        const prod = masterProducts.find((p) => p.id.toString() === productId);
+    const handleModeChange = (newMode: 'new' | 'master') => {
+        setMode(newMode);
+        setMasterError(null);
+        clearErrors();
+
+        if (newMode === 'new') {
+            setData((prev) => ({
+                ...prev,
+                product_id: '',
+                product_specification_id: '',
+                item_name: '',
+                category: '',
+            }));
+        } else {
+            setData((prev) => ({
+                ...prev,
+                product_id: '',
+                product_specification_id: '',
+                item_name: '',
+                category: '',
+            }));
+        }
+    };
+
+    const handleMasterProductSelect = (prod: Product | null) => {
+        setMasterError(null);
 
         if (prod) {
-            setData({
-                ...data,
+            setData((prev) => ({
+                ...prev,
                 product_id: prod.id.toString(),
                 product_specification_id: '',
                 item_name: prod.name,
                 category: prod.category,
-            });
+            }));
+        } else {
+            setData((prev) => ({
+                ...prev,
+                product_id: '',
+                product_specification_id: '',
+                item_name: '',
+                category: '',
+            }));
         }
     };
 
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (mode === 'master' && !data.product_id) {
+            setMasterError('Please select a master product.');
+
+            return;
+        }
+
+        setMasterError(null);
         post(ItemController.store().url, {
             onSuccess: () => {
                 setOpen(false);
                 reset();
-                setUseCustomProduct(false);
+                setMode('new');
+                setMasterError(null);
             },
         });
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog
+            open={open}
+            onOpenChange={(isOpen) => {
+                setOpen(isOpen);
+
+                if (!isOpen) {
+                    reset();
+                    setMode('new');
+                    setMasterError(null);
+                    clearErrors();
+                }
+            }}
+        >
             <DialogTrigger asChild>
                 <Button className="gap-2 rounded-lg shadow-sm">
                     <Plus className="h-4 w-4" />
@@ -387,129 +615,156 @@ function AddItemDialog({
                         stock.
                     </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={submit} className="mt-4 space-y-4">
-                    <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="master_product">Product</Label>
-                            {masterProducts.length > 0 && (
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const next = !useCustomProduct;
-                                        setUseCustomProduct(next);
 
-                                        if (next) {
-                                            setData({
-                                                ...data,
-                                                product_id: '',
-                                                product_specification_id: '',
-                                                item_name: '',
-                                            });
+                <div className="grid grid-cols-2 gap-1 rounded-lg bg-neutral-100 p-1 dark:bg-neutral-800">
+                    <button
+                        type="button"
+                        onClick={() => handleModeChange('new')}
+                        className={`flex items-center justify-center rounded-md py-1.5 text-xs font-medium transition-all sm:text-sm ${
+                            mode === 'new'
+                                ? 'bg-white font-semibold text-neutral-900 shadow-xs dark:bg-neutral-900 dark:text-neutral-100'
+                                : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100'
+                        }`}
+                    >
+                        New Product
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => handleModeChange('master')}
+                        className={`flex items-center justify-center rounded-md py-1.5 text-xs font-medium transition-all sm:text-sm ${
+                            mode === 'master'
+                                ? 'bg-white font-semibold text-neutral-900 shadow-xs dark:bg-neutral-900 dark:text-neutral-100'
+                                : 'text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100'
+                        }`}
+                    >
+                        Select from Master
+                    </button>
+                </div>
+
+                <form onSubmit={submit} className="mt-2 space-y-4">
+                    {mode === 'new' ? (
+                        <>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="item_name">Product Name</Label>
+                                <Input
+                                    id="item_name"
+                                    placeholder="e.g. MacBook Pro M3"
+                                    value={data.item_name}
+                                    onChange={(e) =>
+                                        setData('item_name', e.target.value)
+                                    }
+                                    className="bg-white dark:bg-neutral-900"
+                                />
+                                {errors.item_name && (
+                                    <p className="text-xs font-medium text-red-500">
+                                        {errors.item_name}
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="space-y-1.5">
+                                <Label htmlFor="category">Category</Label>
+                                <CategoryInput
+                                    id="category"
+                                    value={data.category}
+                                    onChange={(val) => setData('category', val)}
+                                    categories={categories}
+                                    error={errors.category}
+                                />
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="space-y-1.5">
+                                <Label htmlFor="master_product_select">
+                                    Master Product
+                                </Label>
+                                {masterProducts.length > 0 ? (
+                                    <MasterProductSelector
+                                        products={masterProducts}
+                                        value={data.product_id}
+                                        onSelect={handleMasterProductSelect}
+                                        error={
+                                            masterError ||
+                                            errors.product_id ||
+                                            (mode === 'master' &&
+                                            errors.item_name
+                                                ? 'Please select a master product.'
+                                                : undefined)
                                         }
-                                    }}
-                                    className="text-[11px] font-medium text-indigo-600 hover:underline dark:text-indigo-400"
-                                >
-                                    {useCustomProduct
-                                        ? '← Select from Master'
-                                        : '+ Custom name'}
-                                </button>
+                                    />
+                                ) : (
+                                    <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300">
+                                        No products available in Feature Master.
+                                        You can switch to &quot;New
+                                        Product&quot; to create one.
+                                    </div>
+                                )}
+                            </div>
+
+                            {selectedMasterProduct && (
+                                <div className="rounded-md border border-neutral-200/80 bg-neutral-50/70 p-2.5 text-xs text-neutral-600 dark:border-neutral-800 dark:bg-neutral-900/40 dark:text-neutral-400">
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-medium text-neutral-500 dark:text-neutral-400">
+                                            Category
+                                        </span>
+                                        <Badge
+                                            variant="secondary"
+                                            className="h-5 rounded px-1.5 py-0 text-[10px] font-normal"
+                                        >
+                                            {selectedMasterProduct.category ||
+                                                'General'}
+                                        </Badge>
+                                    </div>
+                                </div>
                             )}
-                        </div>
 
-                        {!useCustomProduct && masterProducts.length > 0 ? (
-                            <Select
-                                value={data.product_id}
-                                onValueChange={handleMasterProductSelect}
-                            >
-                                <SelectTrigger
-                                    id="master_product"
-                                    className="bg-white dark:bg-neutral-900"
-                                >
-                                    <SelectValue placeholder="Select Master Product" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {masterProducts.map((p) => (
-                                        <SelectItem
-                                            key={p.id}
-                                            value={p.id.toString()}
+                            {selectedMasterProduct &&
+                                availableSpecs.length > 0 && (
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="product_spec">
+                                            Specification (Optional)
+                                        </Label>
+                                        <Select
+                                            value={
+                                                data.product_specification_id
+                                            }
+                                            onValueChange={(val) =>
+                                                setData(
+                                                    'product_specification_id',
+                                                    val === '__none__'
+                                                        ? ''
+                                                        : val,
+                                                )
+                                            }
                                         >
-                                            {p.name} ({p.category})
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        ) : (
-                            <Input
-                                id="item_name"
-                                placeholder="e.g. MacBook Pro M3"
-                                value={data.item_name}
-                                onChange={(e) =>
-                                    setData('item_name', e.target.value)
-                                }
-                            />
-                        )}
-                        {errors.item_name && (
-                            <p className="text-xs font-medium text-red-500">
-                                {errors.item_name}
-                            </p>
-                        )}
-                        {errors.product_id && (
-                            <p className="text-xs font-medium text-red-500">
-                                {errors.product_id}
-                            </p>
-                        )}
-                    </div>
-
-                    {selectedMasterProduct && availableSpecs.length > 0 && (
-                        <div className="space-y-1.5">
-                            <Label htmlFor="product_spec">
-                                Specification (Optional)
-                            </Label>
-                            <Select
-                                value={data.product_specification_id}
-                                onValueChange={(val) =>
-                                    setData(
-                                        'product_specification_id',
-                                        val === '__none__' ? '' : val,
-                                    )
-                                }
-                            >
-                                <SelectTrigger
-                                    id="product_spec"
-                                    className="bg-white dark:bg-neutral-900"
-                                >
-                                    <SelectValue placeholder="Select specification..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="__none__">
-                                        None / Standard
-                                    </SelectItem>
-                                    {availableSpecs.map((s) => (
-                                        <SelectItem
-                                            key={s.id}
-                                            value={s.id.toString()}
-                                        >
-                                            {s.name}{' '}
-                                            {s.part_number
-                                                ? `(${s.part_number})`
-                                                : ''}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
+                                            <SelectTrigger
+                                                id="product_spec"
+                                                className="bg-white dark:bg-neutral-900"
+                                            >
+                                                <SelectValue placeholder="Select specification..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="__none__">
+                                                    None / Standard
+                                                </SelectItem>
+                                                {availableSpecs.map((s) => (
+                                                    <SelectItem
+                                                        key={s.id}
+                                                        value={s.id.toString()}
+                                                    >
+                                                        {s.name}{' '}
+                                                        {s.part_number
+                                                            ? `(${s.part_number})`
+                                                            : ''}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                )}
+                        </>
                     )}
-
-                    <div className="space-y-1.5">
-                        <Label htmlFor="category">Category</Label>
-                        <CategoryInput
-                            id="category"
-                            value={data.category}
-                            onChange={(val) => setData('category', val)}
-                            categories={categories}
-                            error={errors.category}
-                        />
-                    </div>
 
                     <div className="space-y-4 rounded-lg border border-neutral-100 bg-neutral-50 p-4 dark:border-neutral-800 dark:bg-neutral-800/50">
                         <div className="text-xs font-bold tracking-wider text-neutral-400 uppercase">

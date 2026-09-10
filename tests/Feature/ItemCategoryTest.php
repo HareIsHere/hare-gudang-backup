@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Item;
+use App\Models\Product;
 use App\Models\User;
+use App\Models\Warehouse;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -91,4 +93,37 @@ test('unauthenticated users cannot update category of an item', function () {
     ]);
 
     $response->assertRedirect(route('login'));
+});
+
+test('admin can create item from master product without custom name or category', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $warehouse = Warehouse::factory()->create();
+    $product = Product::factory()->create([
+        'name' => 'Master Drill',
+        'category' => 'Tools',
+    ]);
+
+    $response = $this->actingAs($admin)->post(route('admin.items.store'), [
+        'product_id' => $product->id,
+        'warehouse_id' => $warehouse->id,
+        'initial_quantity' => 5,
+    ]);
+
+    $response->assertRedirect();
+    $this->assertDatabaseHas('items', [
+        'product_id' => $product->id,
+        'item_name' => 'Master Drill',
+        'category' => 'Tools',
+    ]);
+});
+
+test('admin creating custom item requires product name when not selecting master product', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $response = $this->actingAs($admin)->post(route('admin.items.store'), [
+        'item_name' => '',
+        'category' => 'Tools',
+    ]);
+
+    $response->assertSessionHasErrors(['item_name']);
 });
