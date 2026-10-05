@@ -55,6 +55,7 @@ export interface InventoryRequest {
     warehouse_id: number;
     project_id?: number | null;
     worksite_id?: number | null;
+    request_description: string | null;
     qty: number;
     status: 'requested' | 'onReview' | 'finished' | 'canceled';
     type: 'IN' | 'OUT';

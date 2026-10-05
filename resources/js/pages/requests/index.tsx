@@ -1,10 +1,12 @@
 import { Head, useForm, router } from '@inertiajs/react';
-import { X, Trash2 } from 'lucide-react';
+import { Search, Trash2, X } from 'lucide-react';
+import { useState } from 'react';
 import * as InventoryRequestController from '@/actions/App/Http/Controllers/InventoryRequestController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
     Select,
     SelectContent,
@@ -14,20 +16,15 @@ import {
 } from '@/components/ui/select';
 import { index as requestsIndex } from '@/routes/requests';
 import type { Item, InventoryRequest, Warehouse } from '@/types/inventory';
-import type { Project, Worksite } from '@/types/master';
 
 export default function RequestsIndex({
     requests,
     items,
     warehouses,
-    projects = [],
-    worksites = [],
 }: {
     requests: InventoryRequest[];
     items: Item[];
     warehouses: Warehouse[];
-    projects?: Project[];
-    worksites?: Worksite[];
 }) {
     const handleDelete = (id: number) => {
         if (
@@ -266,8 +263,6 @@ export default function RequestsIndex({
                             <NewRequestForm
                                 items={items}
                                 warehouses={warehouses}
-                                projects={projects}
-                                worksites={worksites}
                             />
                         </div>
                     </div>
@@ -280,21 +275,25 @@ export default function RequestsIndex({
 function NewRequestForm({
     items,
     warehouses,
-    projects = [],
-    worksites = [],
 }: {
     items: Item[];
     warehouses: Warehouse[];
-    projects?: Project[];
-    worksites?: Worksite[];
 }) {
+    const [productQuery, setProductQuery] = useState('');
+    const [isProductListOpen, setIsProductListOpen] = useState(false);
     const { data, setData, post, processing, errors, reset } = useForm({
         item_id: '',
         warehouse_id: '',
-        project_id: '',
-        worksite_id: '',
+        request_description: '',
         qty: 1,
     });
+
+    const productLabel = (item: Item) =>
+        `${item.item_name}${item.specification ? ` (${item.specification.name})` : ''}`;
+
+    const matchingItems = items.filter((item) =>
+        productLabel(item).toLowerCase().includes(productQuery.toLowerCase()),
+    );
 
     // Find the currently selected product
     const selectedItem = items.find(
@@ -354,10 +353,19 @@ function NewRequestForm({
         }
     };
 
+    const selectItem = (item: Item) => {
+        handleItemChange(item.item_id.toString());
+        setProductQuery(productLabel(item));
+        setIsProductListOpen(false);
+    };
+
     const submit = (e: React.FormEvent) => {
         e.preventDefault();
         post(InventoryRequestController.store().url, {
-            onSuccess: () => reset(),
+            onSuccess: () => {
+                reset();
+                setProductQuery('');
+            },
         });
     };
 
@@ -372,27 +380,62 @@ function NewRequestForm({
         <form onSubmit={submit} className="space-y-6">
             <div className="space-y-2">
                 <Label htmlFor="item_id">Product</Label>
-                <Select
-                    value={data.item_id.toString()}
-                    onValueChange={handleItemChange}
-                >
-                    <SelectTrigger id="item_id" className="rounded-lg">
-                        <SelectValue placeholder="Select a product" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {items.map((item) => (
-                            <SelectItem
-                                key={item.item_id}
-                                value={item.item_id.toString()}
-                            >
-                                {item.item_name}
-                                {item.specification
-                                    ? ` (${item.specification.name})`
-                                    : ''}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
+                <div className="relative">
+                    <Search className="pointer-events-none absolute top-3 left-3 h-4 w-4 text-neutral-400" />
+                    <Input
+                        id="item_id"
+                        value={productQuery}
+                        onFocus={() => {
+                            setProductQuery('');
+                            setIsProductListOpen(true);
+                        }}
+                        onChange={(event) => {
+                            setProductQuery(event.target.value);
+                            setIsProductListOpen(true);
+                        }}
+                        onBlur={() => {
+                            window.setTimeout(() => {
+                                setIsProductListOpen(false);
+                                setProductQuery(
+                                    selectedItem
+                                        ? productLabel(selectedItem)
+                                        : '',
+                                );
+                            }, 150);
+                        }}
+                        placeholder="Search for a product..."
+                        className="rounded-lg pl-9"
+                        role="combobox"
+                        aria-expanded={isProductListOpen}
+                        aria-controls="product-search-results"
+                    />
+                    {isProductListOpen && (
+                        <div
+                            id="product-search-results"
+                            className="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-lg border border-neutral-200 bg-white p-1 shadow-md dark:border-neutral-800 dark:bg-neutral-900"
+                        >
+                            {matchingItems.length === 0 ? (
+                                <p className="px-3 py-2 text-sm text-neutral-500">
+                                    No products found.
+                                </p>
+                            ) : (
+                                matchingItems.map((item) => (
+                                    <button
+                                        key={item.item_id}
+                                        type="button"
+                                        className="w-full rounded-md px-3 py-2 text-left text-sm text-neutral-900 hover:bg-neutral-100 dark:text-neutral-100 dark:hover:bg-neutral-800"
+                                        onMouseDown={(event) =>
+                                            event.preventDefault()
+                                        }
+                                        onClick={() => selectItem(item)}
+                                    >
+                                        {productLabel(item)}
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                    )}
+                </div>
                 {errors.item_id && (
                     <p className="text-xs font-medium text-red-500">
                         {errors.item_id}
@@ -400,64 +443,23 @@ function NewRequestForm({
                 )}
             </div>
 
-            {projects.length > 0 && (
-                <div className="space-y-2">
-                    <Label htmlFor="project_id">
-                        Project (Master Reference - Optional)
-                    </Label>
-                    <Select
-                        value={data.project_id}
-                        onValueChange={(val) =>
-                            setData('project_id', val === '__none__' ? '' : val)
-                        }
-                    >
-                        <SelectTrigger id="project_id" className="rounded-lg">
-                            <SelectValue placeholder="Select a project..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="__none__">
-                                None / General Operations
-                            </SelectItem>
-                            {projects.map((p) => (
-                                <SelectItem key={p.id} value={p.id.toString()}>
-                                    {p.name} ({p.group})
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-            )}
-
-            {worksites.length > 0 && (
-                <div className="space-y-2">
-                    <Label htmlFor="worksite_id">
-                        Destination Worksite (Optional)
-                    </Label>
-                    <Select
-                        value={data.worksite_id}
-                        onValueChange={(val) =>
-                            setData(
-                                'worksite_id',
-                                val === '__none__' ? '' : val,
-                            )
-                        }
-                    >
-                        <SelectTrigger id="worksite_id" className="rounded-lg">
-                            <SelectValue placeholder="Select destination worksite..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="__none__">
-                                None / Unspecified
-                            </SelectItem>
-                            {worksites.map((w) => (
-                                <SelectItem key={w.id} value={w.id.toString()}>
-                                    {w.name} ({w.group})
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-            )}
+            <div className="space-y-2">
+                <Label htmlFor="request_description">Request Description</Label>
+                <Textarea
+                    id="request_description"
+                    placeholder="Explain what this item is needed for..."
+                    value={data.request_description}
+                    onChange={(event) =>
+                        setData('request_description', event.target.value)
+                    }
+                    rows={3}
+                />
+                {errors.request_description && (
+                    <p className="text-xs font-medium text-red-500">
+                        {errors.request_description}
+                    </p>
+                )}
+            </div>
 
             <div className="space-y-2">
                 <Label htmlFor="warehouse_id">Warehouse Source</Label>

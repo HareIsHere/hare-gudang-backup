@@ -61,6 +61,7 @@ test('user cannot request from warehouse they do not have access to', function (
     $response = $this->actingAs($user)->post(route('requests.store'), [
         'item_id' => $item->item_id,
         'warehouse_id' => $warehouse->id,
+        'request_description' => 'Required for scheduled maintenance.',
         'qty' => 5,
     ]);
 
@@ -83,6 +84,7 @@ test('user can request from assigned warehouse', function () {
     $response = $this->actingAs($user)->post(route('requests.store'), [
         'item_id' => $item->item_id,
         'warehouse_id' => $warehouse->id,
+        'request_description' => 'Required for scheduled maintenance.',
         'qty' => 5,
     ]);
 
@@ -90,6 +92,7 @@ test('user can request from assigned warehouse', function () {
     $this->assertDatabaseHas('inventory_requests', [
         'user_id' => $user->id,
         'warehouse_id' => $warehouse->id,
+        'request_description' => 'Required for scheduled maintenance.',
         'qty' => 5,
     ]);
 });

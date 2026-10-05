@@ -141,6 +141,7 @@ test('inventory request can reference project and worksite master data', functio
         'warehouse_id' => $warehouse->id,
         'project_id' => $project->id,
         'worksite_id' => $worksite->id,
+        'request_description' => 'Required for the dry dock repair work.',
         'qty' => 5,
     ]);
     $response->assertRedirect();
@@ -149,6 +150,7 @@ test('inventory request can reference project and worksite master data', functio
     expect($request)->not->toBeNull()
         ->and($request->project_id)->toBe($project->id)
         ->and($request->worksite_id)->toBe($worksite->id)
+        ->and($request->request_description)->toBe('Required for the dry dock repair work.')
         ->and($request->project->name)->toBe('Dry Dock 2026')
         ->and($request->worksite->name)->toBe('Shipyard Banjarmasin');
 });

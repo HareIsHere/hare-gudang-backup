@@ -24,6 +24,7 @@ class InventoryRequestFactory extends Factory
             'user_id' => User::factory(),
             'item_id' => Item::factory(),
             'warehouse_id' => Warehouse::factory(),
+            'request_description' => $this->faker->sentence(),
             'qty' => $this->faker->numberBetween(1, 50),
             'status' => 'requested',
             'type' => 'OUT',

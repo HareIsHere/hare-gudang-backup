@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'item_id', 'warehouse_id', 'project_id', 'worksite_id', 'qty', 'status', 'type', 'reason'])]
+#[Fillable(['user_id', 'item_id', 'warehouse_id', 'project_id', 'worksite_id', 'request_description', 'qty', 'status', 'type', 'reason'])]
 class InventoryRequest extends Model
 {
     /** @use HasFactory<InventoryRequestFactory> */

@@ -33,6 +33,7 @@ class StoreInventoryRequest extends FormRequest
             'warehouse_id' => ['required', 'exists:warehouses,id'],
             'project_id' => ['nullable', 'exists:projects,id'],
             'worksite_id' => ['nullable', 'exists:worksites,id'],
+            'request_description' => ['required', 'string', 'max:1000'],
             'qty' => ['required', 'integer', 'min:1'],
         ];
     }

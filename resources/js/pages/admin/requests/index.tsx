@@ -156,6 +156,13 @@ export default function AdminRequestsIndex({
                                                         </Badge>
                                                     )}
                                                 </div>
+                                                {request.request_description && (
+                                                    <p className="mt-2 max-w-xs text-xs whitespace-normal text-neutral-500 dark:text-neutral-400">
+                                                        {
+                                                            request.request_description
+                                                        }
+                                                    </p>
+                                                )}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-center text-sm font-bold whitespace-nowrap text-neutral-900 dark:text-neutral-100">

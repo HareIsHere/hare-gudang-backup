@@ -77,6 +77,7 @@ class InventoryRequestController extends Controller
             'warehouse_id' => $request->warehouse_id,
             'project_id' => $request->project_id,
             'worksite_id' => $request->worksite_id,
+            'request_description' => $request->request_description,
             'qty' => $request->qty,
             'status' => 'requested',
             'type' => 'OUT',
