@@ -144,6 +144,7 @@ class InventoryRequestController extends Controller
         $inventoryRequest->update([
             'status' => $newStatus,
             'reason' => $newStatus === 'canceled' ? $request->reason : null,
+            'canceled_at' => $newStatus === 'canceled' ? now() : null,
         ]);
 
         return back()->with('success', 'Request status updated.');
@@ -162,7 +163,10 @@ class InventoryRequestController extends Controller
             return back()->withErrors(['status' => 'You can only cancel requests that are not finished or already canceled.']);
         }
 
-        $inventoryRequest->update(['status' => 'canceled']);
+        $inventoryRequest->update([
+            'status' => 'canceled',
+            'canceled_at' => now(),
+        ]);
 
         return back()->with('success', 'Request canceled successfully.');
     }

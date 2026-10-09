@@ -23,6 +23,24 @@ import { Textarea } from '@/components/ui/textarea';
 import { index as adminRequestsIndex } from '@/routes/admin/requests';
 import type { InventoryRequest } from '@/types/inventory';
 
+function formatDateTime(dateStr?: string | null): string {
+    if (!dateStr) {
+        return '-';
+    }
+
+    const date = new Date(dateStr);
+
+    return isNaN(date.getTime())
+        ? dateStr
+        : date.toLocaleDateString(undefined, {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+          });
+}
+
 export default function AdminRequestsIndex({
     requests,
 }: {
@@ -105,6 +123,12 @@ export default function AdminRequestsIndex({
                                                 </span>
                                                 <span className="text-xs text-neutral-500">
                                                     {request.user?.email}
+                                                </span>
+                                                <span className="mt-1 text-xs text-neutral-400">
+                                                    Requested:{' '}
+                                                    {formatDateTime(
+                                                        request.created_at,
+                                                    )}
                                                 </span>
                                             </div>
                                         </td>
@@ -192,17 +216,19 @@ export default function AdminRequestsIndex({
                                                         )
                                                         .trim()}
                                                 </Badge>
-                                                {request.reason && (
-                                                    <div className="flex max-w-[150px] items-center gap-1 text-[10px] text-red-500 italic">
-                                                        <AlertCircle className="h-2.5 w-2.5 shrink-0" />
-                                                        <span
-                                                            className="truncate"
-                                                            title={
-                                                                request.reason
-                                                            }
-                                                        >
-                                                            {request.reason}
-                                                        </span>
+                                                {request.status === 'canceled' && (
+                                                    <div className="flex flex-col items-center gap-1 text-[10px] text-red-500">
+                                                        <CancellationNotesDialog
+                                                            reason={request.reason}
+                                                        />
+                                                        {request.canceled_at && (
+                                                            <span>
+                                                                Canceled at:{' '}
+                                                                {formatDateTime(
+                                                                    request.canceled_at,
+                                                                )}
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 )}
                                             </div>
@@ -237,6 +263,35 @@ export default function AdminRequestsIndex({
                 </div>
             </div>
         </>
+    );
+}
+
+function CancellationNotesDialog({ reason }: { reason: string | null }) {
+    const [open, setOpen] = useState(false);
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen}>
+            <Button
+                type="button"
+                variant="link"
+                className="h-auto p-0 text-[10px] text-red-500"
+                onClick={() => setOpen(true)}
+            >
+                <AlertCircle className="h-3 w-3" />
+                See notes
+            </Button>
+            <DialogContent className="sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>Cancellation Notes</DialogTitle>
+                    <DialogDescription>
+                        Reason provided when this request was canceled.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="max-h-[60vh] overflow-y-auto whitespace-pre-wrap break-words text-sm text-neutral-700 dark:text-neutral-300">
+                    {reason?.trim() || 'No cancellation notes were provided.'}
+                </div>
+            </DialogContent>
+        </Dialog>
     );
 }
 

@@ -8,11 +8,18 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'item_id', 'warehouse_id', 'project_id', 'worksite_id', 'request_description', 'qty', 'status', 'type', 'reason'])]
+#[Fillable(['user_id', 'item_id', 'warehouse_id', 'project_id', 'worksite_id', 'request_description', 'qty', 'status', 'type', 'reason', 'canceled_at'])]
 class InventoryRequest extends Model
 {
     /** @use HasFactory<InventoryRequestFactory> */
     use HasFactory;
+
+    protected function casts(): array
+    {
+        return [
+            'canceled_at' => 'datetime',
+        ];
+    }
 
     public function user(): BelongsTo
     {

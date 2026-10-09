@@ -62,6 +62,7 @@ export interface InventoryRequest {
     reason: string | null;
     created_at: string;
     updated_at: string;
+    canceled_at: string | null;
     item?: Item;
     warehouse?: Warehouse;
     user?: User;

@@ -17,6 +17,26 @@ import {
 import { index as requestsIndex } from '@/routes/requests';
 import type { Item, InventoryRequest, Warehouse } from '@/types/inventory';
 
+function formatRequestCreatedAt(dateString: string): string {
+    const date = new Date(dateString);
+    const formatOptions: Intl.DateTimeFormatOptions = {
+        timeZone: 'UTC',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+    };
+
+    return `${date.toLocaleDateString('en-GB', formatOptions)} ${date.toLocaleTimeString(
+        'en-GB',
+        {
+            timeZone: 'UTC',
+            hour: '2-digit',
+            minute: '2-digit',
+            hourCycle: 'h23',
+        },
+    )}`;
+}
+
 export default function RequestsIndex({
     requests,
     items,
@@ -113,9 +133,9 @@ export default function RequestsIndex({
                                                     </div>
                                                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
                                                         <span className="text-[10px] text-neutral-500">
-                                                            {new Date(
+                                                            {formatRequestCreatedAt(
                                                                 request.created_at,
-                                                            ).toLocaleDateString()}
+                                                            )}
                                                         </span>
                                                         {request.project && (
                                                             <Badge
