@@ -4,6 +4,7 @@ import {
     LayoutGrid,
     Boxes,
     ClipboardList,
+    FilePlus2,
     ShieldCheck,
     Users,
     HardHat,
@@ -38,6 +39,7 @@ import { index as projectsIndex } from '@/routes/master/projects/data';
 import { index as worksiteCategoriesIndex } from '@/routes/master/worksites/categories';
 import { index as worksitesIndex } from '@/routes/master/worksites/data';
 import { index as requestsIndex } from '@/routes/requests';
+import { index as procurementIndex } from '@/routes/procurement';
 import { index as superAdminUsersIndex } from '@/routes/super-admin/users';
 import type { NavItem } from '@/types';
 
@@ -61,6 +63,11 @@ export function AppSidebar() {
             title: 'My Requests',
             href: requestsIndex().url,
             icon: ClipboardList,
+        },
+        {
+            title: 'Pengadaan Barang',
+            href: procurementIndex().url,
+            icon: FilePlus2,
         },
     ];
 
@@ -157,7 +164,9 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} label="Platform" />
-                {isAdmin && <NavMain items={masterNavItems} label="Feature Master" />}
+                {isAdmin && (
+                    <NavMain items={masterNavItems} label="Feature Master" />
+                )}
                 {isAdmin && <NavMain items={adminNavItems} label="Admin" />}
             </SidebarContent>
 

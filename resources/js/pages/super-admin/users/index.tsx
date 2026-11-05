@@ -18,6 +18,14 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import {
     promote,
     demote,
@@ -28,12 +36,15 @@ interface User {
     id: number;
     name: string;
     email: string;
-    role: 'super_admin' | 'admin' | 'user';
+    role: 'super_admin' | 'admin' | 'warehouse_manager' | 'user';
     created_at: string;
 }
 
 export default function SuperAdminUsersIndex({ users }: { users: User[] }) {
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedRole, setSelectedRole] = useState('admin');
+    const [saving, setSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
     const [confirmAction, setConfirmAction] = useState<{
         userId: number;
         userName: string;
@@ -47,6 +58,8 @@ export default function SuperAdminUsersIndex({ users }: { users: User[] }) {
     );
 
     const handlePromote = (userId: number, userName: string) => {
+        setSelectedRole('admin');
+        setSaveError(null);
         setConfirmAction({
             userId,
             userName,
@@ -55,6 +68,7 @@ export default function SuperAdminUsersIndex({ users }: { users: User[] }) {
     };
 
     const handleDemote = (userId: number, userName: string) => {
+        setSaveError(null);
         setConfirmAction({
             userId,
             userName,
@@ -129,6 +143,11 @@ export default function SuperAdminUsersIndex({ users }: { users: User[] }) {
                                                     <Badge className="border-none bg-blue-100 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300">
                                                         Admin
                                                     </Badge>
+                                                ) : u.role ===
+                                                  'warehouse_manager' ? (
+                                                    <Badge variant="secondary">
+                                                        Warehouse Manager
+                                                    </Badge>
                                                 ) : (
                                                     <Badge
                                                         variant="secondary"
@@ -163,9 +182,12 @@ export default function SuperAdminUsersIndex({ users }: { users: User[] }) {
                                                         className="gap-1.5 bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-neutral-50 dark:text-neutral-900 dark:hover:bg-neutral-200"
                                                     >
                                                         <UserCheck className="h-4 w-4" />
-                                                        Promote to Admin
+                                                        Promote user
                                                     </Button>
-                                                ) : u.role === 'admin' ? (
+                                                ) : [
+                                                      'admin',
+                                                      'warehouse_manager',
+                                                  ].includes(u.role) ? (
                                                     <Button
                                                         onClick={() =>
                                                             handleDemote(
@@ -215,13 +237,15 @@ export default function SuperAdminUsersIndex({ users }: { users: User[] }) {
 
             <Dialog
                 open={confirmAction !== null}
-                onOpenChange={(open) => !open && setConfirmAction(null)}
+                onOpenChange={(open) =>
+                    !open && !saving && setConfirmAction(null)
+                }
             >
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                         <DialogTitle>
                             {confirmAction?.action === 'promote'
-                                ? 'Promote to Admin'
+                                ? 'Promote user'
                                 : 'Demote to User'}
                         </DialogTitle>
                         <DialogDescription>
@@ -233,19 +257,52 @@ export default function SuperAdminUsersIndex({ users }: { users: User[] }) {
                                 {confirmAction?.userName}
                             </span>{' '}
                             {confirmAction?.action === 'promote'
-                                ? 'to an Admin role'
+                                ? `to ${selectedRole === 'admin' ? 'Admin' : 'Warehouse Manager'}`
                                 : 'to a regular User role'}
                             ?
                         </DialogDescription>
                     </DialogHeader>
+                    {confirmAction?.action === 'promote' && (
+                        <div className="space-y-2">
+                            <Label htmlFor="promotion-role">New role</Label>
+                            <Select
+                                value={selectedRole}
+                                onValueChange={setSelectedRole}
+                                disabled={saving}
+                            >
+                                <SelectTrigger id="promotion-role">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                    <SelectItem value="warehouse_manager">
+                                        Warehouse Manager
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {selectedRole === 'warehouse_manager' && (
+                                <p className="text-sm text-neutral-500">
+                                    Receiving access requires membership in the
+                                    destination warehouse.
+                                </p>
+                            )}
+                        </div>
+                    )}
+                    {saveError && (
+                        <p role="alert" className="text-sm text-destructive">
+                            {saveError}
+                        </p>
+                    )}
                     <DialogFooter className="mt-4 flex justify-end gap-2">
                         <Button
                             variant="outline"
+                            disabled={saving}
                             onClick={() => setConfirmAction(null)}
                         >
                             Cancel
                         </Button>
                         <Button
+                            disabled={saving}
                             variant={
                                 confirmAction?.action === 'promote'
                                     ? 'default'
@@ -253,25 +310,33 @@ export default function SuperAdminUsersIndex({ users }: { users: User[] }) {
                             }
                             onClick={() => {
                                 if (confirmAction) {
+                                    setSaving(true);
+                                    setSaveError(null);
+                                    const options = {
+                                        preserveScroll: true,
+                                        onSuccess: () => setConfirmAction(null),
+                                        onError: (
+                                            errors: Record<string, string>,
+                                        ) =>
+                                            setSaveError(
+                                                Object.values(errors)[0] ??
+                                                    'Unable to update role.',
+                                            ),
+                                        onFinish: () => setSaving(false),
+                                    };
                                     if (confirmAction.action === 'promote') {
                                         router.patch(
                                             promote(confirmAction.userId).url,
-                                            {},
-                                            {
-                                                preserveScroll: true,
-                                            },
+                                            { role: selectedRole },
+                                            options,
                                         );
                                     } else {
                                         router.patch(
                                             demote(confirmAction.userId).url,
                                             {},
-                                            {
-                                                preserveScroll: true,
-                                            },
+                                            options,
                                         );
                                     }
-
-                                    setConfirmAction(null);
                                 }
                             }}
                         >

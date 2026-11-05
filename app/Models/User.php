@@ -42,6 +42,11 @@ class User extends Authenticatable
         return $this->role === 'super_admin';
     }
 
+    public function isWarehouseManager(): bool
+    {
+        return $this->role === 'warehouse_manager';
+    }
+
     /**
      * Get the attributes that should be cast.
      *

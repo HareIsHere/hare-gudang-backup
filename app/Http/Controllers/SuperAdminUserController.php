@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,15 +25,19 @@ class SuperAdminUserController extends Controller
     }
 
     /**
-     * Promote a user to admin.
+     * Promote a regular user to an operational role.
      */
-    public function promote(User $user): RedirectResponse
+    public function promote(Request $request, User $user): RedirectResponse
     {
+        abort_unless($request->user()?->isSuperAdmin() && $request->user()->id !== $user->id && ! $user->isSuperAdmin(), 403);
+        $validated = $request->validate(['role' => ['sometimes', 'required', 'in:admin,warehouse_manager']]);
+        $role = $validated['role'] ?? 'admin';
         if ($user->role === 'user') {
-            $user->update(['role' => 'admin']);
+            $user->update(['role' => $role]);
+            $roleName = $role === 'admin' ? 'Admin' : 'Warehouse Manager';
             Inertia::flash('toast', [
                 'type' => 'success',
-                'message' => "Successfully promoted {$user->name} to Admin.",
+                'message' => "Successfully promoted {$user->name} to {$roleName}.",
             ]);
         }
 
@@ -42,9 +47,10 @@ class SuperAdminUserController extends Controller
     /**
      * Demote an admin to a regular user.
      */
-    public function demote(User $user): RedirectResponse
+    public function demote(Request $request, User $user): RedirectResponse
     {
-        if ($user->role === 'admin') {
+        abort_unless($request->user()?->isSuperAdmin() && $request->user()->id !== $user->id && ! $user->isSuperAdmin(), 403);
+        if (in_array($user->role, ['admin', 'warehouse_manager'], true)) {
             $user->update(['role' => 'user']);
             Inertia::flash('toast', [
                 'type' => 'success',

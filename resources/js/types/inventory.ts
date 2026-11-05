@@ -9,7 +9,7 @@ export interface User {
     id: number;
     name: string;
     email: string;
-    role: 'super_admin' | 'admin' | 'user';
+    role: 'super_admin' | 'admin' | 'warehouse_manager' | 'user';
 }
 
 export interface Warehouse {
@@ -86,4 +86,62 @@ export interface InventoryMutation {
     from_warehouse?: Warehouse;
     to_warehouse?: Warehouse;
     user?: User;
+}
+
+export interface ProcurementRequestItem {
+    id: number;
+    item_id: number | null;
+    item_name: string;
+    item_code: string | null;
+    part_number: string | null;
+    manufacturer_code: string | null;
+    measurement_unit: string | null;
+    current_stock: number;
+    requested_quantity: number;
+    approved_quantity: number | null;
+    received_quantity: number;
+    description: string | null;
+    item?: Item;
+}
+
+export interface ProcurementRequest {
+    id: number;
+    request_number: string;
+    request_date: string;
+    worksite_id: number | null;
+    requester_id: number;
+    status:
+        | 'draft'
+        | 'submitted'
+        | 'awaiting_review'
+        | 'awaiting_acknowledgement'
+        | 'awaiting_final_approval'
+        | 'pending_approval'
+        | 'approved'
+        | 'received'
+        | 'rejected'
+        | 'canceled';
+    description: string | null;
+    approved_by: number | null;
+    approved_at: string | null;
+    approval_remarks: string | null;
+    rejected_by: number | null;
+    rejected_at: string | null;
+    rejection_remarks: string | null;
+    canceled_at: string | null;
+    examiner_id: number | null;
+    acknowledger_one_id: number | null;
+    acknowledger_two_id: number | null;
+    final_approver_id: number | null;
+    examiner?: User;
+    acknowledger_one?: User;
+    acknowledger_two?: User;
+    final_approver?: User;
+    approval_history?: Array<{ actor_id: number | null; stage: string; action: string; remarks: string | null; created_at: string }>;
+    cancellation_remarks: string | null;
+    items: ProcurementRequestItem[];
+    requester?: User;
+    approver?: User;
+    rejector?: User;
+    worksite?: Worksite;
 }

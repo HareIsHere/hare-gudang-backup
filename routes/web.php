@@ -10,6 +10,7 @@ use App\Http\Controllers\Master\ProductSpecificationController;
 use App\Http\Controllers\Master\ProjectController;
 use App\Http\Controllers\Master\WorksiteCategoryController;
 use App\Http\Controllers\Master\WorksiteController;
+use App\Http\Controllers\ProcurementRequestController;
 use App\Http\Controllers\SuperAdminUserController;
 use App\Http\Controllers\WarehouseController;
 use Illuminate\Support\Facades\Route;
@@ -31,8 +32,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/requests/{inventoryRequest}/cancel', [InventoryRequestController::class, 'cancel'])->name('requests.cancel');
     Route::delete('/requests/{id}', [InventoryRequestController::class, 'destroy'])->name('requests.destroy');
 
+    Route::get('/procurement-requests', [ProcurementRequestController::class, 'index'])->name('procurement.index');
+    Route::get('/procurement-requests/items/search', [ProcurementRequestController::class, 'searchItems'])->name('procurement.items.search');
+    Route::post('/procurement-requests', [ProcurementRequestController::class, 'store'])->name('procurement.store');
+    Route::patch('/procurement-requests/{procurementRequest}/cancel', [ProcurementRequestController::class, 'cancel'])->name('procurement.cancel');
+    Route::post('/procurement-requests/{procurementRequest}/approval-action', [ProcurementRequestController::class, 'actOnApproval'])->name('procurement.approval-action');
+    Route::post('/procurement-requests/{procurementRequest}/receiving-exceptions', [ProcurementRequestController::class, 'requestReceivingException'])->name('procurement.receiving-exceptions.store');
+    Route::post('/admin/procurement-requests/{procurementRequest}/receive', [ProcurementRequestController::class, 'receive'])->name('admin.procurement.receive');
+
     // Admin routes
     Route::middleware(['admin'])->prefix('admin')->name('admin.')->group(function () {
+        Route::put('/procurement-requests/{procurementRequest}/approvers', [ProcurementRequestController::class, 'assignApprovers'])->name('procurement.approvers');
+        Route::patch('/procurement-requests/{procurementRequest}/approval', [ProcurementRequestController::class, 'approve'])->name('procurement.approve');
         Route::post('/items', [ItemController::class, 'store'])->name('items.store');
         Route::patch('/items/{item}', [ItemController::class, 'update'])->name('items.update');
         Route::patch('/items/{item}/category', [ItemController::class, 'updateCategory'])->name('items.update-category');
@@ -52,6 +63,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Super Admin routes
     Route::middleware(['super_admin'])->prefix('super-admin')->name('super-admin.')->group(function () {
+        Route::post('/procurement-requests/{procurementRequest}/receiving-override', [ProcurementRequestController::class, 'overrideReceiving'])->name('procurement.receiving-override');
+        Route::patch('/procurement-receiving-exceptions/{receivingException}', [ProcurementRequestController::class, 'decideReceivingException'])->name('procurement.receiving-exceptions.decide');
         Route::get('/users', [SuperAdminUserController::class, 'index'])->name('users.index');
         Route::patch('/users/{user}/promote', [SuperAdminUserController::class, 'promote'])->name('users.promote');
         Route::patch('/users/{user}/demote', [SuperAdminUserController::class, 'demote'])->name('users.demote');

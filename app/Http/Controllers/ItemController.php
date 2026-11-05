@@ -54,7 +54,7 @@ class ItemController extends Controller
         return Inertia::render('inventory/index', [
             'items' => $items,
             'warehouses' => $user->isAdmin() ? Warehouse::with(['users', 'worksite'])->get() : $user->warehouses()->with('worksite')->get(),
-            'users' => $user->isAdmin() ? User::where('role', 'user')->get() : [],
+            'users' => $user->isAdmin() ? User::whereIn('role', ['user', 'warehouse_manager'])->get() : [],
             'categories' => $categories,
             'masterProducts' => Product::with('specifications')->where('stage', '!=', 'Drop')->orderBy('name')->get(),
             'masterWorksites' => Worksite::where('stage', '!=', 'Drop')->orderBy('name')->get(),
