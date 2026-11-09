@@ -133,31 +133,31 @@ export default function WorksiteCategoriesIndex({
                         <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800">
                             <thead className="bg-neutral-50 dark:bg-neutral-800/50">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Group
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Name
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Description
                                     </th>
-                                    <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Stage
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Created At
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Created By
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Updated At
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Updated By
                                     </th>
-                                    <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Actions
                                     </th>
                                 </tr>
@@ -167,7 +167,7 @@ export default function WorksiteCategoriesIndex({
                                     <tr>
                                         <td
                                             colSpan={9}
-                                            className="px-6 py-12 text-center text-sm text-neutral-500 italic"
+                                            className="px-6 py-12 text-center text-sm text-muted-foreground italic"
                                         >
                                             No worksite categories found.
                                         </td>

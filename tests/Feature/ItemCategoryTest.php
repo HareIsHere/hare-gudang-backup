@@ -98,6 +98,7 @@ test('unauthenticated users cannot update category of an item', function () {
 test('admin can create item from master product without custom name or category', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $product = Product::factory()->create([
         'name' => 'Master Drill',
         'category' => 'Tools',

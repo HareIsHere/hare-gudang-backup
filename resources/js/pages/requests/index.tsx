@@ -6,7 +6,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import {
     Select,
     SelectContent,
@@ -14,6 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { index as requestsIndex } from '@/routes/requests';
 import type { Item, InventoryRequest, Warehouse } from '@/types/inventory';
 
@@ -91,19 +91,19 @@ export default function RequestsIndex({
                                 <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800">
                                     <thead className="bg-neutral-50 dark:bg-neutral-800/50">
                                         <tr>
-                                            <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                            <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                                 Item & Destination
                                             </th>
-                                            <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                            <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                                 Warehouse
                                             </th>
-                                            <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                            <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                                 Qty
                                             </th>
-                                            <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                            <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                                 Status
                                             </th>
-                                            <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                            <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                                 Actions
                                             </th>
                                         </tr>
@@ -113,7 +113,7 @@ export default function RequestsIndex({
                                             <tr>
                                                 <td
                                                     colSpan={5}
-                                                    className="px-6 py-8 text-center text-sm text-neutral-500 italic"
+                                                    className="px-6 py-8 text-center text-sm text-muted-foreground italic"
                                                 >
                                                     No requests found.
                                                 </td>
@@ -132,7 +132,7 @@ export default function RequestsIndex({
                                                         }
                                                     </div>
                                                     <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                                                        <span className="text-[10px] text-neutral-500">
+                                                        <span className="text-[10px] text-muted-foreground">
                                                             {formatRequestCreatedAt(
                                                                 request.created_at,
                                                             )}
@@ -435,7 +435,7 @@ function NewRequestForm({
                             className="absolute z-10 mt-2 max-h-60 w-full overflow-y-auto rounded-lg border border-neutral-200 bg-white p-1 shadow-md dark:border-neutral-800 dark:bg-neutral-900"
                         >
                             {matchingItems.length === 0 ? (
-                                <p className="px-3 py-2 text-sm text-neutral-500">
+                                <p className="px-3 py-2 text-sm text-muted-foreground">
                                     No products found.
                                 </p>
                             ) : (

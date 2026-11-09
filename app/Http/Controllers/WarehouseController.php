@@ -15,6 +15,7 @@ class WarehouseController extends Controller
      */
     public function store(Request $request)
     {
+        abort_unless($request->user()->isSuperAdmin(), 403);
         $request->validate([
             'name' => 'required_without:worksite_id|nullable|string|max:255|unique:warehouses,name',
             'location' => 'nullable|string|max:255',
@@ -52,6 +53,7 @@ class WarehouseController extends Controller
      */
     public function destroy(Warehouse $warehouse)
     {
+        abort_unless(auth()->user()->isSuperAdmin(), 403);
         $name = $warehouse->name;
         $warehouse->delete();
 
@@ -68,6 +70,7 @@ class WarehouseController extends Controller
      */
     public function assignUser(Request $request)
     {
+        abort_unless($request->user()->isSuperAdmin(), 403);
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'warehouse_id' => 'required|exists:warehouses,id',
@@ -91,6 +94,7 @@ class WarehouseController extends Controller
      */
     public function removeUser(Request $request)
     {
+        abort_unless($request->user()->isSuperAdmin(), 403);
         $request->validate([
             'user_id' => 'required|exists:users,id',
             'warehouse_id' => 'required|exists:warehouses,id',

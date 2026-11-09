@@ -18,6 +18,7 @@ test('admin requests include the request creation timestamp', function () {
         'created_at' => $requestedAt,
         'updated_at' => $requestedAt,
     ]);
+    $admin->warehouses()->attach($request->warehouse_id);
 
     $this->actingAs($admin)->get(route('admin.requests.index'))
         ->assertOk()
@@ -36,6 +37,7 @@ test('canceling a request records a timestamp and exposes the complete cancellat
         'status' => 'requested',
     ]);
     $canceledAt = Carbon::parse('2026-10-09 11:00:00');
+    $admin->warehouses()->attach($request->warehouse_id);
     $reason = "Item unavailable.\n".str_repeat('Please submit a new request next week. ', 10);
     $storedReason = trim($reason);
 
@@ -69,6 +71,7 @@ test('unrelated status updates do not set a cancellation timestamp', function ()
         'status' => 'requested',
         'canceled_at' => null,
     ]);
+    $admin->warehouses()->attach($request->warehouse_id);
 
     $this->actingAs($admin)->patch(route('admin.requests.update-status', $request), [
         'status' => 'onReview',

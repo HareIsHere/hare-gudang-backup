@@ -137,40 +137,40 @@ export default function WorksiteDataIndex({
                         <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800">
                             <thead className="bg-neutral-50 dark:bg-neutral-800/50">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         ID
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Group
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Category
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Name
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Address
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Description
                                     </th>
-                                    <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Stage
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Created At
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Created By
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Updated At
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Updated By
                                     </th>
-                                    <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Actions
                                     </th>
                                 </tr>
@@ -180,7 +180,7 @@ export default function WorksiteDataIndex({
                                     <tr>
                                         <td
                                             colSpan={12}
-                                            className="px-6 py-12 text-center text-sm text-neutral-500 italic"
+                                            className="px-6 py-12 text-center text-sm text-muted-foreground italic"
                                         >
                                             No worksite data found.
                                         </td>
@@ -191,7 +191,7 @@ export default function WorksiteDataIndex({
                                         key={ws.id}
                                         className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
                                     >
-                                        <td className="px-6 py-4 font-mono text-xs whitespace-nowrap text-neutral-500">
+                                        <td className="px-6 py-4 font-mono text-xs whitespace-nowrap text-muted-foreground">
                                             #{ws.id}
                                         </td>
                                         <td className="px-6 py-4 text-sm font-medium whitespace-nowrap text-neutral-900 dark:text-neutral-100">

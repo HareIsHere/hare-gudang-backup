@@ -25,6 +25,9 @@ class InventoryService
         ?Warehouse $fromWarehouse = null,
         ?Warehouse $toWarehouse = null
     ): void {
+        if ($user->role === 'admin') {
+            abort_unless($user->canAccessWarehouse($warehouse->id), 403);
+        }
         DB::transaction(function () use ($item, $warehouse, $quantity, $type, $user, $referenceType, $referenceId, $fromWarehouse, $toWarehouse) {
             $inventory = Inventory::firstOrCreate(
                 ['item_id' => $item->item_id, 'warehouse_id' => $warehouse->id],
@@ -115,6 +118,11 @@ class InventoryService
         ?string $referenceType = null,
         ?int $referenceId = null
     ): void {
+        if ($user->role === 'admin') {
+            foreach (array_filter([$fromWarehouse, $toWarehouse]) as $warehouse) {
+                abort_unless($user->canAccessWarehouse($warehouse->id), 403);
+            }
+        }
         DB::transaction(function () use ($item, $quantity, $type, $user, $fromWarehouse, $toWarehouse, $referenceType, $referenceId) {
             if ($type === 'IN' && $toWarehouse) {
                 $this->updateInventory($item, $toWarehouse, $quantity, 'plus');

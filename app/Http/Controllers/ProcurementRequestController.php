@@ -49,7 +49,7 @@ class ProcurementRequestController extends Controller
         return Inertia::render('procurement/index', [
             'requests' => $requests,
             'worksites' => Worksite::where('stage', '!=', 'Drop')->orderBy('name')->get(),
-            'warehouses' => $user->isAdmin() ? Warehouse::with('worksite')->orderBy('name')->get() : $user->warehouses()->with('worksite')->orderBy('name')->get(),
+            'warehouses' => $user->isSuperAdmin() ? Warehouse::with('worksite')->orderBy('name')->get() : $user->warehouses()->with('worksite')->orderBy('name')->get(),
             'users' => $user->isAdmin() ? User::orderBy('name')->get(['id', 'name', 'email', 'role']) : [],
         ]);
     }
@@ -62,7 +62,7 @@ class ProcurementRequestController extends Controller
         $query = trim((string) ($validated['q'] ?? ''));
 
         $items = Item::query()
-            ->with(['product:id,name', 'specification:id,name,part_number,measurement_unit', 'inventories.warehouse.worksite'])
+            ->with(['product:id,name', 'specification:id,name,part_number,measurement_unit', 'inventories' => fn ($query) => $query->when($request->user()->role === 'admin', fn ($query) => $query->whereIn('warehouse_id', $request->user()->warehouses()->select('warehouses.id'))), 'inventories.warehouse.worksite'])
             ->when($query !== '', fn ($itemQuery) => $itemQuery->where(fn ($searchQuery) => $searchQuery->where('item_name', 'like', "%{$query}%")->orWhereHas('product', fn ($productQuery) => $productQuery->where('name', 'like', "%{$query}%"))))
             ->orderBy('item_name')
             ->limit(20)
@@ -75,7 +75,10 @@ class ProcurementRequestController extends Controller
     {
         $validated = $request->validated();
         $worksiteId = $validated['worksite_id'] ?? null;
-        $items = Item::with(['product', 'specification', 'inventories' => function ($query) use ($worksiteId) {
+        $items = Item::with(['product', 'specification', 'inventories' => function ($query) use ($worksiteId, $request) {
+            if ($request->user()->role === 'admin') {
+                $query->whereIn('warehouse_id', $request->user()->warehouses()->select('warehouses.id'));
+            }
             if ($worksiteId) {
                 $query->whereHas('warehouse', fn ($warehouseQuery) => $warehouseQuery->where('worksite_id', $worksiteId));
             }
@@ -257,6 +260,7 @@ class ProcurementRequestController extends Controller
             }
 
             $warehouse = Warehouse::findOrFail($validated['warehouse_id']);
+            abort_if($request->user()->role === 'admin' && ! $request->user()->canAccessWarehouse($warehouse->id), 403);
             if ($request->user()->isWarehouseManager() && ! $request->user()->warehouses()->whereKey($warehouse->id)->exists()) {
                 throw ValidationException::withMessages([
                     'warehouse_id' => 'You are not assigned to this warehouse.',
@@ -373,6 +377,7 @@ class ProcurementRequestController extends Controller
     public function requestReceivingException(RequestProcurementReceivingException $request, ProcurementRequest $procurementRequest): RedirectResponse
     {
         $validated = $request->validated();
+        abort_unless($request->user()->canAccessWarehouse($validated['warehouse_id']), 403);
         $quantities = collect($validated['items'])->mapWithKeys(fn ($item) => [(string) $item['id'] => $item['received_quantity']])->all();
 
         DB::transaction(function () use ($procurementRequest, $validated, $quantities, $request): void {

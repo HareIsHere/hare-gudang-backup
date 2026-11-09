@@ -84,14 +84,18 @@ export default function InventoryIndex({
                     </div>
                     {isAdmin && (
                         <div className="flex gap-2">
-                            <ManageWarehousesDialog
-                                warehouses={warehouses}
-                                worksites={masterWorksites}
-                            />
-                            <ManageAccessDialog
-                                warehouses={warehouses}
-                                users={users}
-                            />
+                            {user.role === 'super_admin' && (
+                                <>
+                                    <ManageWarehousesDialog
+                                        warehouses={warehouses}
+                                        worksites={masterWorksites}
+                                    />
+                                    <ManageAccessDialog
+                                        warehouses={warehouses}
+                                        users={users}
+                                    />
+                                </>
+                            )}
                             <AddItemDialog
                                 warehouses={warehouses}
                                 categories={categories}
@@ -149,17 +153,17 @@ export default function InventoryIndex({
                         <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800">
                             <thead className="bg-neutral-55 dark:bg-neutral-800/50">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Item Details
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Stock by Warehouse
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Total Quantity
                                     </th>
                                     {isAdmin && (
-                                        <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                        <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                             Actions
                                         </th>
                                     )}
@@ -170,7 +174,7 @@ export default function InventoryIndex({
                                     <tr>
                                         <td
                                             colSpan={isAdmin ? 4 : 3}
-                                            className="px-6 py-12 text-center text-sm text-neutral-500 italic"
+                                            className="px-6 py-12 text-center text-sm text-muted-foreground italic"
                                         >
                                             No items found matching the
                                             criteria.
@@ -239,9 +243,9 @@ export default function InventoryIndex({
                                                                 <Badge
                                                                     key={inv.id}
                                                                     variant="secondary"
-                                                                    className="dark:bg-neutral-850 flex items-center gap-1.5 border-none bg-neutral-100 px-2 py-0.5"
+                                                                    className="flex items-center gap-1.5 border-none px-2 py-0.5"
                                                                 >
-                                                                    <WarehouseIcon className="h-3 w-3 text-neutral-400" />
+                                                                    <WarehouseIcon className="h-3 w-3 text-muted-foreground" />
                                                                     <span className="font-medium">
                                                                         {
                                                                             inv
@@ -1032,7 +1036,7 @@ function EditItemDialog({
                     Edit
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[440px]">
+            <DialogContent className="max-h-[calc(100dvh-2rem)] min-w-0 overflow-y-auto sm:max-w-[440px]">
                 <DialogHeader>
                     <DialogTitle>Edit Product</DialogTitle>
                     <DialogDescription>
@@ -1040,7 +1044,7 @@ function EditItemDialog({
                         stock.
                     </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={submit} className="mt-4 space-y-5">
+                <form onSubmit={submit} className="mt-4 min-w-0 space-y-5">
                     {masterProducts.length > 0 && (
                         <div className="space-y-1.5">
                             <Label htmlFor="edit_master_product">
@@ -1052,7 +1056,7 @@ function EditItemDialog({
                             >
                                 <SelectTrigger
                                     id="edit_master_product"
-                                    className="bg-white dark:bg-neutral-900"
+                                    className="w-full min-w-0 bg-white *:data-[slot=select-value]:min-w-0 *:data-[slot=select-value]:truncate dark:bg-neutral-900"
                                 >
                                     <SelectValue placeholder="Select Master Product..." />
                                 </SelectTrigger>
@@ -1089,7 +1093,7 @@ function EditItemDialog({
                             >
                                 <SelectTrigger
                                     id="edit_product_spec"
-                                    className="bg-white dark:bg-neutral-900"
+                                    className="w-full min-w-0 bg-white *:data-[slot=select-value]:min-w-0 *:data-[slot=select-value]:truncate dark:bg-neutral-900"
                                 >
                                     <SelectValue placeholder="Select specification..." />
                                 </SelectTrigger>
@@ -1154,7 +1158,7 @@ function EditItemDialog({
                                     setData('warehouse_id', val)
                                 }
                             >
-                                <SelectTrigger className="bg-white dark:bg-neutral-900">
+                                <SelectTrigger className="w-full min-w-0 bg-white *:data-[slot=select-value]:min-w-0 *:data-[slot=select-value]:truncate dark:bg-neutral-900">
                                     <SelectValue placeholder="Select warehouse" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1186,7 +1190,7 @@ function EditItemDialog({
                                 }
                                 placeholder="e.g. 10 or -5"
                             />
-                            <p className="text-[10px] text-neutral-500">
+                            <p className="text-[10px] text-muted-foreground">
                                 Enter a positive value to add stock, or a
                                 negative value to reduce stock.
                             </p>
@@ -1198,7 +1202,7 @@ function EditItemDialog({
                         </div>
                     </div>
 
-                    <div className="flex justify-end gap-2 pt-4">
+                    <div className="flex flex-col-reverse justify-end gap-2 pt-4 sm:flex-row">
                         <Button
                             type="button"
                             variant="outline"

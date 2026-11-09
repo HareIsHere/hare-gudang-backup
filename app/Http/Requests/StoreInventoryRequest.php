@@ -14,7 +14,7 @@ class StoreInventoryRequest extends FormRequest
     public function authorize(): bool
     {
         $user = $this->user();
-        if ($user->isAdmin()) {
+        if ($user->isSuperAdmin()) {
             return true;
         }
 

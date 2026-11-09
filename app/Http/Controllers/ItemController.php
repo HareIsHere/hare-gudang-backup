@@ -25,11 +25,13 @@ class ItemController extends Controller
     {
         $user = auth()->user();
 
-        // If regular user, only show items and stock for their assigned warehouses
-        if (! $user->isAdmin()) {
+        if (! $user->isSuperAdmin()) {
             $warehouseIds = $user->warehouses->pluck('id');
-            $items = Item::whereHas('warehouses', function ($query) use ($warehouseIds) {
-                $query->whereIn('warehouses.id', $warehouseIds);
+            $items = Item::where(function ($query) use ($warehouseIds, $user): void {
+                $query->whereHas('warehouses', fn ($warehouseQuery) => $warehouseQuery->whereIn('warehouses.id', $warehouseIds));
+                if ($user->role === 'admin') {
+                    $query->orWhereDoesntHave('inventories');
+                }
             })->with(['product', 'specification', 'inventories' => function ($query) use ($warehouseIds) {
                 $query->whereIn('warehouse_id', $warehouseIds);
             }, 'inventories.warehouse.worksite'])->get();
@@ -53,8 +55,8 @@ class ItemController extends Controller
 
         return Inertia::render('inventory/index', [
             'items' => $items,
-            'warehouses' => $user->isAdmin() ? Warehouse::with(['users', 'worksite'])->get() : $user->warehouses()->with('worksite')->get(),
-            'users' => $user->isAdmin() ? User::whereIn('role', ['user', 'warehouse_manager'])->get() : [],
+            'warehouses' => $user->isSuperAdmin() ? Warehouse::with(['users', 'worksite'])->get() : $user->warehouses()->with('worksite')->get(),
+            'users' => $user->isSuperAdmin() ? User::whereIn('role', ['user', 'admin', 'warehouse_manager'])->get() : [],
             'categories' => $categories,
             'masterProducts' => Product::with('specifications')->where('stage', '!=', 'Drop')->orderBy('name')->get(),
             'masterWorksites' => Worksite::where('stage', '!=', 'Drop')->orderBy('name')->get(),
@@ -164,6 +166,7 @@ class ItemController extends Controller
      */
     public function updateCategory(Request $request, Item $item)
     {
+        abort_unless($request->user()->isSuperAdmin() || ! $item->inventories()->exists() || $item->inventories()->whereIn('warehouse_id', $request->user()->warehouses()->select('warehouses.id'))->exists(), 403);
         $request->validate([
             'category' => ['nullable', 'string', 'max:255'],
         ]);
@@ -180,6 +183,7 @@ class ItemController extends Controller
      */
     public function destroy(Item $item)
     {
+        abort_if(! auth()->user()->isSuperAdmin() && $item->inventories()->whereNotIn('warehouse_id', auth()->user()->warehouses()->select('warehouses.id'))->exists(), 403);
         $item->delete();
 
         return back()->with('success', 'Item deleted successfully.');

@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreItemRequest extends FormRequest
 {
@@ -12,7 +13,7 @@ class StoreItemRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        return ($this->user()?->isAdmin() ?? false) && (! $this->filled('warehouse_id') || $this->user()->canAccessWarehouse($this->input('warehouse_id')));
     }
 
     /**
@@ -27,7 +28,7 @@ class StoreItemRequest extends FormRequest
             'product_id' => ['nullable', 'exists:products,id'],
             'product_specification_id' => ['nullable', 'exists:product_specifications,id'],
             'category' => ['nullable', 'string', 'max:255'],
-            'warehouse_id' => ['nullable', 'exists:warehouses,id'],
+            'warehouse_id' => [Rule::requiredIf(fn () => $this->integer('initial_quantity') > 0), 'nullable', 'exists:warehouses,id'],
             'initial_quantity' => ['nullable', 'integer', 'min:0'],
         ];
     }

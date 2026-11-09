@@ -12,6 +12,7 @@ uses(RefreshDatabase::class);
 test('admin can fulfill an inventory request and it logs mutation', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
 
     // Seed initial inventory
@@ -97,8 +98,8 @@ test('user can request from assigned warehouse', function () {
     ]);
 });
 
-test('admin can create a warehouse', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+test('superadmin can create a warehouse', function () {
+    $admin = User::factory()->create(['role' => 'super_admin']);
 
     $response = $this->actingAs($admin)->post(route('admin.warehouses.store'), [
         'name' => 'New Test Warehouse',
@@ -126,8 +127,8 @@ test('regular user cannot create a warehouse', function () {
     ]);
 });
 
-test('admin can delete a warehouse', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+test('superadmin can delete a warehouse', function () {
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $warehouse = Warehouse::factory()->create();
 
     $response = $this->actingAs($admin)->delete(route('admin.warehouses.destroy', $warehouse));
@@ -185,6 +186,7 @@ test('only canceled requests can be deleted', function () {
 test('admin can adjust stock by negative amount to decrease inventory', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
 
     // Seed initial inventory
@@ -223,6 +225,7 @@ test('admin can adjust stock by negative amount to decrease inventory', function
 test('admin can cancel a finished inventory request, which reverts stock and logs cancellation', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
 
     // Seed initial inventory
@@ -277,6 +280,7 @@ test('admin can cancel a finished inventory request, which reverts stock and log
 test('admin can revert a finished inventory request back to review, which reverts stock and logs reversion', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
 
     // Seed initial inventory

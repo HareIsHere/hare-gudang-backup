@@ -26,22 +26,22 @@ export default function MutationsIndex({
                         <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800">
                             <thead className="bg-neutral-50 dark:bg-neutral-800/50">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Timestamp
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Type
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Product
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Movement
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Qty
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         User
                                     </th>
                                 </tr>
@@ -51,7 +51,7 @@ export default function MutationsIndex({
                                     <tr>
                                         <td
                                             colSpan={6}
-                                            className="px-6 py-8 text-center text-sm text-neutral-500 italic"
+                                            className="px-6 py-8 text-center text-sm text-muted-foreground italic"
                                         >
                                             No mutations logged yet.
                                         </td>
@@ -62,7 +62,7 @@ export default function MutationsIndex({
                                         key={mutation.id}
                                         className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
                                     >
-                                        <td className="px-6 py-4 text-xs whitespace-nowrap text-neutral-500">
+                                        <td className="px-6 py-4 text-xs whitespace-nowrap text-muted-foreground">
                                             {new Date(
                                                 mutation.created_at,
                                             ).toLocaleString()}
@@ -122,16 +122,16 @@ export default function MutationsIndex({
                                             <span
                                                 className={`text-sm font-bold ${
                                                     mutation.type === 'IN'
-                                                        ? 'text-green-600'
+                                                        ? 'text-green-600 dark:text-green-400'
                                                         : mutation.type ===
                                                             'OUT'
-                                                          ? 'text-red-600'
+                                                          ? 'text-red-600 dark:text-red-400'
                                                           : mutation.type ===
                                                               'REQUEST'
                                                             ? mutation.from_warehouse_id
-                                                                ? 'text-red-600'
-                                                                : 'text-green-600'
-                                                            : 'text-blue-600'
+                                                                ? 'text-red-600 dark:text-red-400'
+                                                                : 'text-green-600 dark:text-green-400'
+                                                            : 'text-blue-600 dark:text-blue-400'
                                                 }`}
                                             >
                                                 {mutation.type === 'OUT' ||

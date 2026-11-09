@@ -28,6 +28,7 @@ test('master data appears in existing feature forms (inventory, requests, admin 
         'worksite_id' => $worksite->id,
     ]);
     $user->warehouses()->attach($warehouse->id);
+    $admin->warehouses()->attach($warehouse);
 
     $product = Product::factory()->create(['name' => 'Fuel Filter', 'category' => 'Filter']);
     $spec = ProductSpecification::factory()->create(['product_id' => $product->id, 'name' => 'OEM Standard']);
@@ -68,6 +69,7 @@ test('master data appears in existing feature forms (inventory, requests, admin 
 test('existing feature creates inventory item from master product and specification', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
 
     $product = Product::factory()->create([
         'name' => 'Hydraulic Pump',
@@ -156,7 +158,7 @@ test('inventory request can reference project and worksite master data', functio
 });
 
 test('warehouse can reference master worksite', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $worksite = Worksite::factory()->create([
         'name' => 'Rimau Pioneer Site',
         'address' => 'Banjarmasin Port Pier 3',

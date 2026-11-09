@@ -12,6 +12,7 @@ test('an inventory request requires a description and makes it available to admi
     $user = User::factory()->create(['role' => 'user']);
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $user->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
 

@@ -444,6 +444,7 @@ test('all assigned SPB approvers can view the request while unrelated users cann
 test('an admin can approve and partially receive a procurement request before completing it later', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
     $procurementRequest = ProcurementRequest::factory()->create(['status' => 'pending_approval']);
     $requestItem = $procurementRequest->items()->create([
@@ -566,6 +567,7 @@ test('a regular user cannot receive an SPB', function () {
 test('an admin cannot receive a procurement request before approval', function (string $status) {
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
     $procurementRequest = ProcurementRequest::factory()->create(['status' => $status]);
     $requestItem = $procurementRequest->items()->create([
@@ -593,6 +595,7 @@ test('an admin cannot receive a procurement request before approval', function (
 test('a completed procurement request cannot be received twice', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
     $procurementRequest = ProcurementRequest::factory()->create(['status' => 'approved', 'approved_by' => $admin->id, 'approved_at' => now()]);
     $requestItem = $procurementRequest->items()->create([
@@ -639,6 +642,7 @@ test('an Admin can request an exception and a Superadmin can approve it without 
     $admin = User::factory()->create(['role' => 'admin']);
     $superAdmin = User::factory()->create(['role' => 'super_admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
     $procurementRequest = ProcurementRequest::factory()->create(['status' => 'approved']);
     $requestItem = $procurementRequest->items()->create([
@@ -695,6 +699,7 @@ test('only an Admin can request an exception and only a different Superadmin can
     $regularUser = User::factory()->create(['role' => 'user']);
     $superAdmin = User::factory()->create(['role' => 'super_admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $procurementRequest = ProcurementRequest::factory()->create(['status' => 'approved']);
 
     $this->actingAs($regularUser)
@@ -727,6 +732,7 @@ test('only an Admin can request an exception and only a different Superadmin can
 test('an exception request must target approved remaining lines on its SPB', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
     $otherItem = Item::factory()->create();
     $procurementRequest = ProcurementRequest::factory()->create(['status' => 'approved']);
@@ -765,6 +771,7 @@ test('an exception request must target approved remaining lines on its SPB', fun
 test('an exception cannot be requested for an SPB that is not finally approved', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
     $procurementRequest = ProcurementRequest::factory()->create(['status' => 'awaiting_final_approval']);
     $requestItem = $procurementRequest->items()->create(['item_id' => $item->item_id, 'item_name' => $item->item_name, 'requested_quantity' => 1, 'approved_quantity' => 1]);
@@ -785,6 +792,7 @@ test('a Superadmin can reject a pending exception and the rejected exception can
     $admin = User::factory()->create(['role' => 'admin']);
     $superAdmin = User::factory()->create(['role' => 'super_admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
     $procurementRequest = ProcurementRequest::factory()->create(['status' => 'approved']);
     $requestItem = $procurementRequest->items()->create(['item_id' => $item->item_id, 'item_name' => $item->item_name, 'requested_quantity' => 1, 'approved_quantity' => 1]);
@@ -821,6 +829,7 @@ test('an Admin receipt consumes only its approved exception allowance and record
     $admin = User::factory()->create(['role' => 'admin']);
     $superAdmin = User::factory()->create(['role' => 'super_admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
     $procurementRequest = ProcurementRequest::factory()->create(['status' => 'approved']);
     $requestItem = $procurementRequest->items()->create([
@@ -868,7 +877,9 @@ test('an Admin cannot receive with another Admins, warehouse-mismatched, or expi
     $otherAdmin = User::factory()->create(['role' => 'admin']);
     $superAdmin = User::factory()->create(['role' => 'super_admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $otherWarehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($otherWarehouse);
     $item = Item::factory()->create();
     $procurementRequest = ProcurementRequest::factory()->create(['status' => 'approved']);
     $requestItem = $procurementRequest->items()->create(['item_id' => $item->item_id, 'item_name' => $item->item_name, 'requested_quantity' => 1, 'approved_quantity' => 1]);
@@ -926,6 +937,7 @@ test('a failed inventory mutation rolls back Admin exception consumption and its
     $admin = User::factory()->create(['role' => 'admin']);
     $superAdmin = User::factory()->create(['role' => 'super_admin']);
     $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
     $procurementRequest = ProcurementRequest::factory()->create(['status' => 'approved']);
     $requestItem = $procurementRequest->items()->create(['item_id' => $item->item_id, 'item_name' => $item->item_name, 'requested_quantity' => 1, 'approved_quantity' => 1]);

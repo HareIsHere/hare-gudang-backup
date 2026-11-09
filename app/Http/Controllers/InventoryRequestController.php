@@ -26,7 +26,7 @@ class InventoryRequestController extends Controller
         $user = auth()->user();
 
         // Users can only see requests for warehouses they have access to
-        $warehouseIds = $user->isAdmin()
+        $warehouseIds = $user->isSuperAdmin()
             ? Warehouse::pluck('id')
             : $user->warehouses->pluck('id');
 
@@ -46,7 +46,7 @@ class InventoryRequestController extends Controller
                 ->latest()
                 ->get(),
             'items' => $items,
-            'warehouses' => $user->isAdmin() ? Warehouse::with('worksite')->get() : $user->warehouses()->with('worksite')->get(),
+            'warehouses' => $user->isSuperAdmin() ? Warehouse::with('worksite')->get() : $user->warehouses()->with('worksite')->get(),
             'projects' => Project::orderBy('name')->get(),
             'worksites' => Worksite::where('stage', '!=', 'Drop')->orderBy('name')->get(),
         ]);
@@ -59,6 +59,7 @@ class InventoryRequestController extends Controller
     {
         return Inertia::render('admin/requests/index', [
             'requests' => InventoryRequest::with(['item.product', 'user', 'warehouse.worksite', 'project', 'worksite'])
+                ->when(! auth()->user()->isSuperAdmin(), fn ($query) => $query->whereIn('warehouse_id', auth()->user()->warehouses()->select('warehouses.id')))
                 ->latest()
                 ->get(),
             'projects' => Project::orderBy('name')->get(),
@@ -91,6 +92,7 @@ class InventoryRequestController extends Controller
      */
     public function updateStatus(UpdateInventoryRequestStatus $request, InventoryRequest $inventoryRequest)
     {
+        abort_unless($request->user()->canAccessWarehouse($inventoryRequest->warehouse_id), 403);
         $oldStatus = $inventoryRequest->status;
         $newStatus = $request->status;
 
@@ -180,6 +182,7 @@ class InventoryRequestController extends Controller
         $user = auth()->user();
 
         // Security check: Only Admin or the owner can delete
+        abort_if($user->role === 'admin' && ! $user->canAccessWarehouse($inventoryRequest->warehouse_id), 403);
         if (! $user->isAdmin() && $inventoryRequest->user_id !== $user->id) {
             abort(403, 'Unauthorized to delete this record.');
         }

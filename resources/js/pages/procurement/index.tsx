@@ -90,7 +90,10 @@ export default function ProcurementIndex({
         setCancelRequest(request);
     };
     const confirmCancellation = () => {
-        if (!cancelRequest) return;
+        if (!cancelRequest) {
+            return;
+        }
+
         cancellation.patch(
             ProcurementRequestController.cancel({
                 procurementRequest: cancelRequest.id,
@@ -201,7 +204,7 @@ export default function ProcurementIndex({
                     <div className="mb-4 flex items-center justify-between gap-3">
                         <div>
                             <h2 className="font-semibold">Buat SPB</h2>
-                            <p className="text-sm text-neutral-500">
+                            <p className="text-sm text-muted-foreground">
                                 Nomor SPB dibuat otomatis saat disimpan.
                             </p>
                         </div>
@@ -274,7 +277,7 @@ export default function ProcurementIndex({
 
                     <div className="mt-5 overflow-x-auto rounded-lg border">
                         <table className="w-full min-w-[1050px] text-sm">
-                            <thead className="bg-neutral-50 text-left text-xs text-neutral-500 uppercase dark:bg-neutral-800">
+                            <thead className="bg-neutral-50 text-left text-xs text-muted-foreground uppercase dark:bg-neutral-800">
                                 <tr>
                                     <th className="p-3">Barang / tipe</th>
                                     <th className="p-3">Kode</th>
@@ -323,12 +326,12 @@ export default function ProcurementIndex({
                                                     }
                                                 />
                                             </td>
-                                            <td className="p-2 text-neutral-500">
+                                            <td className="p-2 text-muted-foreground">
                                                 {item
                                                     ? `#${item.item_id}`
                                                     : '—'}
                                             </td>
-                                            <td className="p-2 text-neutral-500">
+                                            <td className="p-2 text-muted-foreground">
                                                 {item?.specification
                                                     ?.part_number || '—'}
                                             </td>
@@ -463,7 +466,7 @@ export default function ProcurementIndex({
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full text-sm">
-                            <thead className="bg-neutral-50 text-left text-xs text-neutral-500 uppercase dark:bg-neutral-800">
+                            <thead className="bg-neutral-50 text-left text-xs text-muted-foreground uppercase dark:bg-neutral-800">
                                 <tr>
                                     <th className="p-4">Nomor / tanggal</th>
                                     <th className="p-4">Peminta</th>
@@ -481,7 +484,7 @@ export default function ProcurementIndex({
                                     >
                                         <td className="p-4 font-medium">
                                             {procurementRequest.request_number}
-                                            <div className="text-xs text-neutral-500">
+                                            <div className="text-xs text-muted-foreground">
                                                 {
                                                     procurementRequest.request_date
                                                 }
@@ -540,7 +543,7 @@ export default function ProcurementIndex({
                                     <tr>
                                         <td
                                             colSpan={6}
-                                            className="p-8 text-center text-neutral-500"
+                                            className="p-8 text-center text-muted-foreground"
                                         >
                                             Belum ada SPB.
                                         </td>
@@ -809,7 +812,7 @@ function ProductSearchInput({
                       }}
                   >
                       {availableResults.length === 0 ? (
-                          <p className="px-3 py-2 text-sm text-neutral-500">
+                          <p className="px-3 py-2 text-sm text-muted-foreground">
                               Tidak ada barang ditemukan
                           </p>
                       ) : (
@@ -1181,7 +1184,7 @@ function RequestDialog({
                 </DialogHeader>
                 <div className="overflow-x-auto">
                     <table className="w-full min-w-[780px] text-sm">
-                        <thead className="text-left text-xs text-neutral-500 uppercase">
+                        <thead className="text-left text-xs text-muted-foreground uppercase">
                             <tr>
                                 <th className="p-2">Barang</th>
                                 <th className="p-2">Kode / part no.</th>
@@ -1196,7 +1199,7 @@ function RequestDialog({
                                 <tr key={item.id} className="border-t">
                                     <td className="p-2">
                                         {item.item_name}
-                                        <div className="text-xs text-neutral-500">
+                                        <div className="text-xs text-muted-foreground">
                                             {item.measurement_unit ?? '—'} ·{' '}
                                             {item.manufacturer_code ?? '—'}
                                         </div>
@@ -1286,7 +1289,7 @@ function RequestDialog({
                     }
                 />
                 {request.approved_at && (
-                    <p className="text-sm text-neutral-500">
+                    <p className="text-sm text-muted-foreground">
                         Disetujui oleh {request.approver?.name} pada{' '}
                         {new Date(request.approved_at).toLocaleString()}.
                     </p>
@@ -1495,7 +1498,7 @@ function SignatureRole({ label, name }: { label: string; name?: string }) {
     return (
         <div className="min-h-16 border-b pb-2 sm:border-r sm:border-b-0 sm:pr-2">
             <p className="font-medium">{label}</p>
-            <p className="mt-6 text-neutral-500">
+            <p className="mt-6 text-muted-foreground">
                 {name ?? 'Belum ditetapkan'}
             </p>
         </div>

@@ -83,19 +83,19 @@ export default function AdminRequestsIndex({
                         <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800">
                             <thead className="bg-neutral-50 dark:bg-neutral-800/50">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-left text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         User
                                     </th>
-                                    <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Product & Warehouse
                                     </th>
-                                    <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Quantity
                                     </th>
-                                    <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-center text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Status
                                     </th>
-                                    <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-neutral-500 uppercase">
+                                    <th className="px-6 py-4 text-right text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                                         Actions
                                     </th>
                                 </tr>
@@ -105,7 +105,7 @@ export default function AdminRequestsIndex({
                                     <tr>
                                         <td
                                             colSpan={5}
-                                            className="px-6 py-8 text-center text-sm text-neutral-500 italic"
+                                            className="px-6 py-8 text-center text-sm text-muted-foreground italic"
                                         >
                                             No requests found.
                                         </td>
@@ -121,7 +121,7 @@ export default function AdminRequestsIndex({
                                                 <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                                                     {request.user?.name}
                                                 </span>
-                                                <span className="text-xs text-neutral-500">
+                                                <span className="text-xs text-muted-foreground">
                                                     {request.user?.email}
                                                 </span>
                                                 <span className="mt-1 text-xs text-neutral-400">
@@ -216,10 +216,13 @@ export default function AdminRequestsIndex({
                                                         )
                                                         .trim()}
                                                 </Badge>
-                                                {request.status === 'canceled' && (
+                                                {request.status ===
+                                                    'canceled' && (
                                                     <div className="flex flex-col items-center gap-1 text-[10px] text-red-500">
                                                         <CancellationNotesDialog
-                                                            reason={request.reason}
+                                                            reason={
+                                                                request.reason
+                                                            }
                                                         />
                                                         {request.canceled_at && (
                                                             <span>
@@ -287,7 +290,7 @@ function CancellationNotesDialog({ reason }: { reason: string | null }) {
                         Reason provided when this request was canceled.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="max-h-[60vh] overflow-y-auto whitespace-pre-wrap break-words text-sm text-neutral-700 dark:text-neutral-300">
+                <div className="max-h-[60vh] overflow-y-auto text-sm break-words whitespace-pre-wrap text-neutral-700 dark:text-neutral-300">
                     {reason?.trim() || 'No cancellation notes were provided.'}
                 </div>
             </DialogContent>
@@ -342,7 +345,7 @@ function StatusUpdateForm({ request }: { request: InventoryRequest }) {
     if (request.status === 'finished') {
         return (
             <Select value="finished" onValueChange={(value) => submit(value)}>
-                <SelectTrigger className="h-9 w-44 rounded-lg border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 dark:border-green-900/50 dark:bg-green-950/30 dark:text-green-400">
+                <SelectTrigger className="h-9 w-44 rounded-lg border-green-200 bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800 dark:border-green-900/50 dark:bg-green-950/30 dark:text-green-400 dark:hover:bg-green-950/50 dark:hover:text-green-300">
                     <SelectValue placeholder="Fulfillment Complete" />
                 </SelectTrigger>
                 <SelectContent>

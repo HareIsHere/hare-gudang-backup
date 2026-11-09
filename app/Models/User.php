@@ -47,6 +47,11 @@ class User extends Authenticatable
         return $this->role === 'warehouse_manager';
     }
 
+    public function canAccessWarehouse(mixed $warehouseId): bool
+    {
+        return $this->isSuperAdmin() || ((is_int($warehouseId) || is_string($warehouseId)) && $this->warehouses()->whereKey($warehouseId)->exists());
+    }
+
     /**
      * Get the attributes that should be cast.
      *
