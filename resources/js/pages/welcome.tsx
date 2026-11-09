@@ -38,13 +38,13 @@ export default function Welcome() {
                                     <div className="flex w-full flex-col gap-3 text-center">
                                         <Link
                                             href={login()}
-                                            className="block w-full rounded-full border border-indigo-600 px-6 py-2.5 text-sm font-medium text-indigo-600 transition-colors duration-200 hover:bg-indigo-600 hover:text-white"
+                                            className="block w-full rounded-full border border-indigo-600 px-6 py-2.5 text-sm font-medium text-indigo-600 transition-colors duration-200 hover:bg-indigo-600 hover:text-white dark:border-indigo-400 dark:text-indigo-300 dark:hover:bg-indigo-400 dark:hover:text-neutral-950"
                                         >
                                             Log in
                                         </Link>
                                         <Link
                                             href={register()}
-                                            className="block w-full rounded-full border border-indigo-600 px-6 py-2.5 text-sm font-medium text-indigo-600 transition-colors duration-200 hover:bg-indigo-600 hover:text-white"
+                                            className="block w-full rounded-full border border-indigo-600 px-6 py-2.5 text-sm font-medium text-indigo-600 transition-colors duration-200 hover:bg-indigo-600 hover:text-white dark:border-indigo-400 dark:text-indigo-300 dark:hover:bg-indigo-400 dark:hover:text-neutral-950"
                                         >
                                             Register
                                         </Link>
