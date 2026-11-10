@@ -62,6 +62,7 @@ class StoreProcurementRequest extends FormRequest
         return [function (Validator $validator): void {
             $lines = collect($this->input('items', []));
             $items = Item::query()
+                ->when($this->user()->role === 'admin', fn ($query) => $query->accessibleTo($this->user()))
                 ->whereIn(
                     'item_id',
                     $lines
@@ -76,6 +77,10 @@ class StoreProcurementRequest extends FormRequest
                 $item = $items->get($line['item_id'] ?? null);
 
                 if (! $item) {
+                    if ($this->user()->role === 'admin') {
+                        $validator->errors()->add("items.{$index}.item_id", 'Barang tidak tersedia di gudang yang ditugaskan kepada Anda.');
+                    }
+
                     continue;
                 }
 

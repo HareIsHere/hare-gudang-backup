@@ -38,15 +38,15 @@ import { index as productSpecificationsIndex } from '@/routes/master/products/sp
 import { index as projectsIndex } from '@/routes/master/projects/data';
 import { index as worksiteCategoriesIndex } from '@/routes/master/worksites/categories';
 import { index as worksitesIndex } from '@/routes/master/worksites/data';
-import { index as requestsIndex } from '@/routes/requests';
 import { index as procurementIndex } from '@/routes/procurement';
+import { index as requestsIndex } from '@/routes/requests';
 import { index as superAdminUsersIndex } from '@/routes/super-admin/users';
 import type { NavItem } from '@/types';
 
 export function AppSidebar() {
     const { auth } = usePage().props as any;
     const user = auth.user;
-    const isAdmin = user.role === 'admin' || user.role === 'super_admin';
+    const isSuperAdmin = user.role === 'super_admin';
 
     const mainNavItems: NavItem[] = [
         {
@@ -164,10 +164,12 @@ export function AppSidebar() {
 
             <SidebarContent>
                 <NavMain items={mainNavItems} label="Platform" />
-                {isAdmin && (
+                {isSuperAdmin && (
                     <NavMain items={masterNavItems} label="Feature Master" />
                 )}
-                {isAdmin && <NavMain items={adminNavItems} label="Admin" />}
+                {isSuperAdmin && (
+                    <NavMain items={adminNavItems} label="Admin" />
+                )}
             </SidebarContent>
 
             <SidebarFooter>

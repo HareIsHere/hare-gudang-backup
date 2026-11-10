@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Database\Factories\ItemFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,6 +19,15 @@ class Item extends Model
     use HasFactory;
 
     protected $primaryKey = 'item_id';
+
+    #[Scope]
+    protected function accessibleTo(Builder $query, User $user): Builder
+    {
+        return $query->when(! $user->isSuperAdmin(), fn (Builder $query) => $query->whereHas(
+            'inventories',
+            fn (Builder $inventoryQuery) => $inventoryQuery->whereIn('warehouse_id', $user->warehouses()->select('warehouses.id')),
+        ));
+    }
 
     public function product(): BelongsTo
     {

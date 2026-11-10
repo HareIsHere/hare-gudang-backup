@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Inventory;
 use App\Models\Item;
 use App\Models\Product;
 use App\Models\User;
@@ -26,6 +27,9 @@ test('admin can set category when creating a new item', function () {
 test('admin can update item name and category', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $item = Item::factory()->create(['category' => 'Old Category']);
+    $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
+    Inventory::factory()->create(['item_id' => $item->item_id, 'warehouse_id' => $warehouse->id]);
 
     $response = $this->actingAs($admin)->patch(route('admin.items.update', $item), [
         'item_name' => 'Updated Laptop',
@@ -43,6 +47,9 @@ test('admin can update item name and category', function () {
 test('admin can update category of an item', function () {
     $admin = User::factory()->create(['role' => 'admin']);
     $item = Item::factory()->create(['category' => 'Initial Category']);
+    $warehouse = Warehouse::factory()->create();
+    $admin->warehouses()->attach($warehouse);
+    Inventory::factory()->create(['item_id' => $item->item_id, 'warehouse_id' => $warehouse->id]);
 
     $response = $this->actingAs($admin)->patch(route('admin.items.update-category', $item), [
         'category' => 'Admin Updated Category',
@@ -103,6 +110,8 @@ test('admin can create item from master product without custom name or category'
         'name' => 'Master Drill',
         'category' => 'Tools',
     ]);
+    $existingItem = Item::factory()->create(['product_id' => $product->id]);
+    Inventory::factory()->create(['item_id' => $existingItem->item_id, 'warehouse_id' => $warehouse->id]);
 
     $response = $this->actingAs($admin)->post(route('admin.items.store'), [
         'product_id' => $product->id,

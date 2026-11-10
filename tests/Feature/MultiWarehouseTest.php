@@ -9,8 +9,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
 
-test('admin can fulfill an inventory request and it logs mutation', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+test('superadmin can fulfill an inventory request and it logs mutation', function () {
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $warehouse = Warehouse::factory()->create();
     $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
@@ -222,8 +222,8 @@ test('admin can adjust stock by negative amount to decrease inventory', function
     ]);
 });
 
-test('admin can cancel a finished inventory request, which reverts stock and logs cancellation', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+test('superadmin can cancel a finished inventory request, which reverts stock and logs cancellation', function () {
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $warehouse = Warehouse::factory()->create();
     $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();
@@ -277,8 +277,8 @@ test('admin can cancel a finished inventory request, which reverts stock and log
     ]);
 });
 
-test('admin can revert a finished inventory request back to review, which reverts stock and logs reversion', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+test('superadmin can revert a finished inventory request back to review, which reverts stock and logs reversion', function () {
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $warehouse = Warehouse::factory()->create();
     $admin->warehouses()->attach($warehouse);
     $item = Item::factory()->create();

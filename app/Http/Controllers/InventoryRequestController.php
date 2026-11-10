@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FilterWarehouseRequest;
 use App\Http\Requests\StoreInventoryRequest;
 use App\Http\Requests\UpdateInventoryRequestStatus;
 use App\Models\InventoryRequest;
@@ -21,9 +22,10 @@ class InventoryRequestController extends Controller
     /**
      * Display a listing of the requests for the authenticated user.
      */
-    public function index(): Response
+    public function index(FilterWarehouseRequest $request): Response
     {
         $user = auth()->user();
+        $warehouseId = $request->warehouseId();
 
         // Users can only see requests for warehouses they have access to
         $warehouseIds = $user->isSuperAdmin()
@@ -43,9 +45,11 @@ class InventoryRequestController extends Controller
             'requests' => InventoryRequest::with(['item.product', 'warehouse.worksite', 'project', 'worksite'])
                 ->where('user_id', $user->id)
                 ->whereIn('warehouse_id', $warehouseIds)
+                ->when($warehouseId !== null, fn ($query) => $query->where('warehouse_id', $warehouseId))
                 ->latest()
                 ->get(),
             'items' => $items,
+            'filters' => ['warehouse_id' => $warehouseId],
             'warehouses' => $user->isSuperAdmin() ? Warehouse::with('worksite')->get() : $user->warehouses()->with('worksite')->get(),
             'projects' => Project::orderBy('name')->get(),
             'worksites' => Worksite::where('stage', '!=', 'Drop')->orderBy('name')->get(),
@@ -55,14 +59,17 @@ class InventoryRequestController extends Controller
     /**
      * Display a listing of all requests for Admin.
      */
-    public function adminIndex(): Response
+    public function adminIndex(FilterWarehouseRequest $request): Response
     {
         return Inertia::render('admin/requests/index', [
             'requests' => InventoryRequest::with(['item.product', 'user', 'warehouse.worksite', 'project', 'worksite'])
                 ->when(! auth()->user()->isSuperAdmin(), fn ($query) => $query->whereIn('warehouse_id', auth()->user()->warehouses()->select('warehouses.id')))
+                ->when($request->warehouseId() !== null, fn ($query) => $query->where('warehouse_id', $request->warehouseId()))
                 ->latest()
                 ->get(),
             'projects' => Project::orderBy('name')->get(),
+            'warehouses' => Warehouse::orderBy('name')->get(),
+            'filters' => ['warehouse_id' => $request->warehouseId()],
             'worksites' => Worksite::where('stage', '!=', 'Drop')->orderBy('name')->get(),
         ]);
     }
@@ -181,9 +188,9 @@ class InventoryRequestController extends Controller
         $inventoryRequest = InventoryRequest::findOrFail($id);
         $user = auth()->user();
 
-        // Security check: Only Admin or the owner can delete
+        // Only Superadmin or the owner can delete a canceled request.
         abort_if($user->role === 'admin' && ! $user->canAccessWarehouse($inventoryRequest->warehouse_id), 403);
-        if (! $user->isAdmin() && $inventoryRequest->user_id !== $user->id) {
+        if (! $user->isSuperAdmin() && $inventoryRequest->user_id !== $user->id) {
             abort(403, 'Unauthorized to delete this record.');
         }
 

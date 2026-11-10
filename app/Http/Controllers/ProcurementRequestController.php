@@ -6,6 +6,7 @@ use App\Http\Requests\ActOnProcurementRequestApproval;
 use App\Http\Requests\ApproveProcurementRequest;
 use App\Http\Requests\AssignProcurementApproversRequest;
 use App\Http\Requests\DecideProcurementReceivingException;
+use App\Http\Requests\FilterWarehouseRequest;
 use App\Http\Requests\OverrideProcurementReceivingRequest;
 use App\Http\Requests\ReceiveProcurementRequest;
 use App\Http\Requests\RequestProcurementReceivingException;
@@ -31,10 +32,12 @@ class ProcurementRequestController extends Controller
 {
     public function __construct(protected InventoryService $inventoryService) {}
 
-    public function index(): Response
+    public function index(FilterWarehouseRequest $request): Response
     {
         $user = auth()->user();
         $requests = ProcurementRequest::with(['items.item.product', 'items.item.specification', 'requester', 'approver', 'rejector', 'examiner', 'acknowledgerOne', 'acknowledgerTwo', 'finalApprover', 'approvalHistory.actor', 'worksite'])
+            ->when(! $user->isSuperAdmin(), fn ($query) => $query->whereIn('worksite_id', $user->warehouses()->whereNotNull('worksite_id')->select('worksite_id')))
+            ->when($request->warehouseId() !== null, fn ($query) => $query->whereIn('worksite_id', Warehouse::whereKey($request->warehouseId())->select('worksite_id')))
             ->when(! $user->isAdmin(), fn ($query) => $query->where(function ($visibleRequests) use ($user): void {
                 $visibleRequests
                     ->where('requester_id', $user->id)
@@ -48,6 +51,7 @@ class ProcurementRequestController extends Controller
 
         return Inertia::render('procurement/index', [
             'requests' => $requests,
+            'filters' => ['warehouse_id' => $request->warehouseId()],
             'worksites' => Worksite::where('stage', '!=', 'Drop')->orderBy('name')->get(),
             'warehouses' => $user->isSuperAdmin() ? Warehouse::with('worksite')->orderBy('name')->get() : $user->warehouses()->with('worksite')->orderBy('name')->get(),
             'users' => $user->isAdmin() ? User::orderBy('name')->get(['id', 'name', 'email', 'role']) : [],
@@ -62,6 +66,7 @@ class ProcurementRequestController extends Controller
         $query = trim((string) ($validated['q'] ?? ''));
 
         $items = Item::query()
+            ->when($request->user()->role === 'admin', fn ($itemQuery) => $itemQuery->accessibleTo($request->user()))
             ->with(['product:id,name', 'specification:id,name,part_number,measurement_unit', 'inventories' => fn ($query) => $query->when($request->user()->role === 'admin', fn ($query) => $query->whereIn('warehouse_id', $request->user()->warehouses()->select('warehouses.id'))), 'inventories.warehouse.worksite'])
             ->when($query !== '', fn ($itemQuery) => $itemQuery->where(fn ($searchQuery) => $searchQuery->where('item_name', 'like', "%{$query}%")->orWhereHas('product', fn ($productQuery) => $productQuery->where('name', 'like', "%{$query}%"))))
             ->orderBy('item_name')

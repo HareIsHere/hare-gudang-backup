@@ -5,6 +5,8 @@ namespace App\Models;
 use App\Concerns\HasAuditFields;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -14,6 +16,15 @@ class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
     use HasAuditFields, HasFactory;
+
+    #[Scope]
+    protected function accessibleTo(Builder $query, User $user): Builder
+    {
+        return $query->when(! $user->isSuperAdmin(), fn (Builder $query) => $query->whereHas(
+            'items',
+            fn (Builder $itemQuery) => $itemQuery->accessibleTo($user),
+        ));
+    }
 
     public function specifications(): HasMany
     {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FilterWarehouseRequest;
 use App\Http\Requests\StoreItemRequest;
 use App\Http\Requests\UpdateItemRequest;
 use App\Models\Item;
@@ -21,30 +22,25 @@ class ItemController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): Response
+    public function index(FilterWarehouseRequest $request): Response
     {
         $user = auth()->user();
+        $warehouseId = $request->warehouseId();
 
-        if (! $user->isSuperAdmin()) {
-            $warehouseIds = $user->warehouses->pluck('id');
-            $items = Item::where(function ($query) use ($warehouseIds, $user): void {
-                $query->whereHas('warehouses', fn ($warehouseQuery) => $warehouseQuery->whereIn('warehouses.id', $warehouseIds));
-                if ($user->role === 'admin') {
-                    $query->orWhereDoesntHave('inventories');
-                }
-            })->with(['product', 'specification', 'inventories' => function ($query) use ($warehouseIds) {
-                $query->whereIn('warehouse_id', $warehouseIds);
+        $warehouseIds = $user->warehouses->pluck('id');
+        $items = Item::accessibleTo($user)
+            ->when($warehouseId !== null, fn ($query) => $query->whereHas('inventories', fn ($query) => $query->where('warehouse_id', $warehouseId)))
+            ->with(['product', 'specification', 'inventories' => function ($query) use ($warehouseIds, $warehouseId, $user) {
+                $query->when(! $user->isSuperAdmin(), fn ($query) => $query->whereIn('warehouse_id', $warehouseIds))
+                    ->when($warehouseId !== null, fn ($query) => $query->where('warehouse_id', $warehouseId));
             }, 'inventories.warehouse.worksite'])->get();
-        } else {
-            $items = Item::with(['product', 'specification', 'inventories.warehouse.worksite'])->get();
-        }
 
-        $categories = Product::whereNotNull('category')
+        $categories = Product::accessibleTo($user)->whereNotNull('category')
             ->where('category', '!=', '')
             ->distinct()
             ->pluck('category')
             ->merge(
-                Item::whereNotNull('category')
+                Item::accessibleTo($user)->whereNotNull('category')
                     ->where('category', '!=', '')
                     ->distinct()
                     ->pluck('category')
@@ -55,11 +51,12 @@ class ItemController extends Controller
 
         return Inertia::render('inventory/index', [
             'items' => $items,
+            'filters' => ['warehouse_id' => $warehouseId],
             'warehouses' => $user->isSuperAdmin() ? Warehouse::with(['users', 'worksite'])->get() : $user->warehouses()->with('worksite')->get(),
             'users' => $user->isSuperAdmin() ? User::whereIn('role', ['user', 'admin', 'warehouse_manager'])->get() : [],
             'categories' => $categories,
-            'masterProducts' => Product::with('specifications')->where('stage', '!=', 'Drop')->orderBy('name')->get(),
-            'masterWorksites' => Worksite::where('stage', '!=', 'Drop')->orderBy('name')->get(),
+            'masterProducts' => Product::accessibleTo($user)->with('specifications')->where('stage', '!=', 'Drop')->orderBy('name')->get(),
+            'masterWorksites' => $user->isSuperAdmin() ? Worksite::where('stage', '!=', 'Drop')->orderBy('name')->get() : [],
         ]);
     }
 
@@ -166,7 +163,7 @@ class ItemController extends Controller
      */
     public function updateCategory(Request $request, Item $item)
     {
-        abort_unless($request->user()->isSuperAdmin() || ! $item->inventories()->exists() || $item->inventories()->whereIn('warehouse_id', $request->user()->warehouses()->select('warehouses.id'))->exists(), 403);
+        abort_unless(Item::accessibleTo($request->user())->whereKey($item->getKey())->exists(), 403);
         $request->validate([
             'category' => ['nullable', 'string', 'max:255'],
         ]);
@@ -183,6 +180,7 @@ class ItemController extends Controller
      */
     public function destroy(Item $item)
     {
+        abort_unless(Item::accessibleTo(auth()->user())->whereKey($item->getKey())->exists(), 403);
         abort_if(! auth()->user()->isSuperAdmin() && $item->inventories()->whereNotIn('warehouse_id', auth()->user()->warehouses()->select('warehouses.id'))->exists(), 403);
         $item->delete();
 

@@ -1,11 +1,17 @@
 import { Head } from '@inertiajs/react';
 import { Badge } from '@/components/ui/badge';
-import type { InventoryMutation } from '@/types/inventory';
+import WarehouseFilter from '@/components/warehouse-filter';
+import { index as mutationsIndex } from '@/routes/admin/mutations';
+import type { InventoryMutation, Warehouse } from '@/types/inventory';
 
 export default function MutationsIndex({
     mutations,
+    warehouses,
+    filters,
 }: {
     mutations: InventoryMutation[];
+    warehouses: Warehouse[];
+    filters: { warehouse_id: number | null };
 }) {
     return (
         <>
@@ -22,6 +28,13 @@ export default function MutationsIndex({
                 </div>
 
                 <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                    <div className="border-b p-4">
+                        <WarehouseFilter
+                            warehouses={warehouses}
+                            value={filters.warehouse_id}
+                            href={mutationsIndex().url}
+                        />
+                    </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800">
                             <thead className="bg-neutral-50 dark:bg-neutral-800/50">

@@ -20,8 +20,9 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import WarehouseFilter from '@/components/warehouse-filter';
 import { index as adminRequestsIndex } from '@/routes/admin/requests';
-import type { InventoryRequest } from '@/types/inventory';
+import type { InventoryRequest, Warehouse } from '@/types/inventory';
 
 function formatDateTime(dateStr?: string | null): string {
     if (!dateStr) {
@@ -43,8 +44,12 @@ function formatDateTime(dateStr?: string | null): string {
 
 export default function AdminRequestsIndex({
     requests,
+    warehouses,
+    filters,
 }: {
     requests: InventoryRequest[];
+    warehouses: Warehouse[];
+    filters: { warehouse_id: number | null };
 }) {
     const handleDelete = (id: number) => {
         if (
@@ -79,6 +84,13 @@ export default function AdminRequestsIndex({
                 </div>
 
                 <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+                    <div className="border-b p-4">
+                        <WarehouseFilter
+                            warehouses={warehouses}
+                            value={filters.warehouse_id}
+                            href={adminRequestsIndex().url}
+                        />
+                    </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-neutral-200 dark:divide-neutral-800">
                             <thead className="bg-neutral-50 dark:bg-neutral-800/50">

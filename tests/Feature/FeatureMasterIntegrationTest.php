@@ -15,7 +15,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 test('master data appears in existing feature forms (inventory, requests, admin requests)', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $user = User::factory()->create(['role' => 'user']);
 
     $category = WorksiteCategory::factory()->create(['name' => 'Vessels']);
@@ -67,7 +67,7 @@ test('master data appears in existing feature forms (inventory, requests, admin 
 });
 
 test('existing feature creates inventory item from master product and specification', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $warehouse = Warehouse::factory()->create();
     $admin->warehouses()->attach($warehouse);
 
@@ -177,7 +177,7 @@ test('warehouse can reference master worksite', function () {
 });
 
 test('referential integrity: cannot delete master records when existing feature dependencies exist', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
 
     $category = WorksiteCategory::factory()->create(['name' => 'Mining Facilities']);
     $worksite = Worksite::factory()->create([

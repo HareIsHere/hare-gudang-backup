@@ -14,6 +14,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import WarehouseFilter from '@/components/warehouse-filter';
 import { index as requestsIndex } from '@/routes/requests';
 import type { Item, InventoryRequest, Warehouse } from '@/types/inventory';
 
@@ -41,10 +42,12 @@ export default function RequestsIndex({
     requests,
     items,
     warehouses,
+    filters,
 }: {
     requests: InventoryRequest[];
     items: Item[];
     warehouses: Warehouse[];
+    filters: { warehouse_id: number | null };
 }) {
     const handleDelete = (id: number) => {
         if (
@@ -80,10 +83,15 @@ export default function RequestsIndex({
             <div className="p-6">
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     <div className="lg:col-span-2">
-                        <div className="mb-6">
+                        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
                             <h1 className="text-2xl font-bold tracking-tight">
                                 My Inventory Requests
                             </h1>
+                            <WarehouseFilter
+                                warehouses={warehouses}
+                                value={filters.warehouse_id}
+                                href={requestsIndex().url}
+                            />
                         </div>
 
                         <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">

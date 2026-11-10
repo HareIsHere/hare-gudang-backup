@@ -30,6 +30,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import WarehouseFilter from '@/components/warehouse-filter';
 import { index as inventoryIndex } from '@/routes/inventory';
 import type { Item, Warehouse, User } from '@/types/inventory';
 import type { Product, Worksite } from '@/types/master';
@@ -41,6 +42,7 @@ export default function InventoryIndex({
     categories = [],
     masterProducts = [],
     masterWorksites = [],
+    filters,
 }: {
     items: Item[];
     warehouses: Warehouse[];
@@ -48,6 +50,7 @@ export default function InventoryIndex({
     categories?: string[];
     masterProducts?: Product[];
     masterWorksites?: Worksite[];
+    filters: { warehouse_id: number | null };
 }) {
     const { auth } = usePage().props as any;
     const user = auth.user;
@@ -106,7 +109,7 @@ export default function InventoryIndex({
                 </div>
 
                 <div className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                    <div className="flex flex-col items-center justify-between gap-3 border-b border-neutral-200 bg-neutral-50/50 p-4 sm:flex-row dark:border-neutral-800 dark:bg-neutral-900/50">
+                    <div className="flex flex-wrap items-end justify-between gap-3 border-b border-neutral-200 bg-neutral-50/50 p-4 dark:border-neutral-800 dark:bg-neutral-900/50">
                         <div className="relative w-full sm:max-w-xs">
                             <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-neutral-400" />
                             <Input
@@ -124,6 +127,11 @@ export default function InventoryIndex({
                                 </button>
                             )}
                         </div>
+                        <WarehouseFilter
+                            warehouses={warehouses}
+                            value={filters.warehouse_id}
+                            href={inventoryIndex().url}
+                        />
                         <div className="flex w-full items-center gap-2 sm:w-auto">
                             <Label className="shrink-0 text-xs font-semibold tracking-wider text-neutral-500 uppercase dark:text-neutral-400">
                                 Category Filter:

@@ -32,15 +32,15 @@ test('user cannot access master routes', function () {
     $this->actingAs($user)->get('/master')->assertForbidden();
 });
 
-test('admin can access master routes', function () {
+test('admin cannot access master routes', function () {
     $admin = User::factory()->create(['role' => 'admin']);
 
-    $this->actingAs($admin)->get(route('master.worksites.categories.index'))->assertOk();
-    $this->actingAs($admin)->get(route('master.worksites.data.index'))->assertOk();
-    $this->actingAs($admin)->get(route('master.projects.data.index'))->assertOk();
-    $this->actingAs($admin)->get(route('master.products.data.index'))->assertOk();
-    $this->actingAs($admin)->get(route('master.products.specifications.index'))->assertOk();
-    $this->actingAs($admin)->get(route('master.prices.index'))->assertOk();
+    $this->actingAs($admin)->get(route('master.worksites.categories.index'))->assertForbidden();
+    $this->actingAs($admin)->get(route('master.worksites.data.index'))->assertForbidden();
+    $this->actingAs($admin)->get(route('master.projects.data.index'))->assertForbidden();
+    $this->actingAs($admin)->get(route('master.products.data.index'))->assertForbidden();
+    $this->actingAs($admin)->get(route('master.products.specifications.index'))->assertForbidden();
+    $this->actingAs($admin)->get(route('master.prices.index'))->assertForbidden();
 });
 
 test('super_admin can access master routes', function () {
@@ -55,7 +55,7 @@ test('super_admin can access master routes', function () {
 });
 
 test('redirect routes work as expected', function () {
-    $user = User::factory()->create(['role' => 'admin']);
+    $user = User::factory()->create(['role' => 'super_admin']);
 
     $this->actingAs($user)->get('/master')->assertRedirect('/master/worksites/categories');
     $this->actingAs($user)->get('/master/worksites')->assertRedirect('/master/worksites/categories');
@@ -64,8 +64,8 @@ test('redirect routes work as expected', function () {
 });
 
 test('user can view worksite categories and perform crud with audit fields', function () {
-    $user = User::factory()->create(['role' => 'admin', 'name' => 'John Creator']);
-    $user2 = User::factory()->create(['role' => 'admin', 'name' => 'Jane Updater']);
+    $user = User::factory()->create(['role' => 'super_admin', 'name' => 'John Creator']);
+    $user2 = User::factory()->create(['role' => 'super_admin', 'name' => 'Jane Updater']);
 
     // Index
     $response = $this->actingAs($user)->get(route('master.worksites.categories.index'));
@@ -111,7 +111,7 @@ test('user can view worksite categories and perform crud with audit fields', fun
 });
 
 test('user can view worksite data and perform crud with category relationship', function () {
-    $user = User::factory()->create(['role' => 'admin']);
+    $user = User::factory()->create(['role' => 'super_admin']);
     $category = WorksiteCategory::factory()->create(['name' => 'Mining Site']);
 
     // Index
@@ -156,7 +156,7 @@ test('user can view worksite data and perform crud with category relationship', 
 });
 
 test('user can view projects and perform crud', function () {
-    $user = User::factory()->create(['role' => 'admin']);
+    $user = User::factory()->create(['role' => 'super_admin']);
 
     // Index
     $response = $this->actingAs($user)->get(route('master.projects.data.index'));
@@ -195,7 +195,7 @@ test('user can view projects and perform crud', function () {
 });
 
 test('user can view products, specifications and prices with counts and relationships', function () {
-    $user = User::factory()->create(['role' => 'admin']);
+    $user = User::factory()->create(['role' => 'super_admin']);
 
     // 1. Create Product
     $storeProd = $this->actingAs($user)->post(route('master.products.data.store'), [

@@ -2,6 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Item;
+use App\Models\Product;
+use App\Models\ProductSpecification;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -19,9 +22,15 @@ class UpdateItemRequest extends FormRequest
         if ($this->filled('warehouse_id') && ! $this->user()->canAccessWarehouse($this->input('warehouse_id'))) {
             return false;
         }
+        if ($this->filled('product_id') && $this->user()->role === 'admin' && ! Product::accessibleTo($this->user())->whereKey($this->input('product_id'))->exists()) {
+            return false;
+        }
+        if ($this->filled('product_specification_id') && $this->user()->role === 'admin' && ! ProductSpecification::whereKey($this->input('product_specification_id'))->whereHas('product', fn ($query) => $query->accessibleTo($this->user()))->exists()) {
+            return false;
+        }
         $item = $this->route('item');
 
-        return $this->user()->isSuperAdmin() || ! $item->inventories()->exists() || $item->inventories()->whereIn('warehouse_id', $this->user()->warehouses()->select('warehouses.id'))->exists();
+        return Item::accessibleTo($this->user())->whereKey($item->getKey())->exists();
     }
 
     /**

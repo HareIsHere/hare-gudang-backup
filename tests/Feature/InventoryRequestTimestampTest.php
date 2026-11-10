@@ -10,7 +10,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 uses(RefreshDatabase::class);
 
 test('admin requests include the request creation timestamp', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $requestedAt = Carbon::parse('2026-10-09 10:30:00');
     $request = InventoryRequest::factory()->create([
         'item_id' => Item::factory(),
@@ -30,7 +30,7 @@ test('admin requests include the request creation timestamp', function () {
 });
 
 test('canceling a request records a timestamp and exposes the complete cancellation note', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $request = InventoryRequest::factory()->create([
         'item_id' => Item::factory(),
         'warehouse_id' => Warehouse::factory(),
@@ -64,7 +64,7 @@ test('canceling a request records a timestamp and exposes the complete cancellat
 });
 
 test('unrelated status updates do not set a cancellation timestamp', function () {
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $request = InventoryRequest::factory()->create([
         'item_id' => Item::factory(),
         'warehouse_id' => Warehouse::factory(),

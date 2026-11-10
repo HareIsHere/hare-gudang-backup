@@ -32,6 +32,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import WarehouseFilter from '@/components/warehouse-filter';
 import { index as procurementIndex } from '@/routes/procurement';
 import type {
     Item,
@@ -62,11 +63,13 @@ export default function ProcurementIndex({
     worksites,
     warehouses,
     users,
+    filters,
 }: {
     requests: ProcurementRequest[];
     worksites: Worksite[];
     warehouses: Warehouse[];
     users: User[];
+    filters: { warehouse_id: number | null };
 }) {
     const { auth } = usePage().props as any;
     const isAdmin = ['admin', 'super_admin'].includes(auth.user.role);
@@ -461,8 +464,18 @@ export default function ProcurementIndex({
                 </section>
 
                 <section className="overflow-hidden rounded-xl border border-neutral-200 bg-white shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-                    <div className="border-b p-5 dark:border-neutral-800">
-                        <h2 className="font-semibold">Daftar SPB</h2>
+                    <div className="flex flex-wrap items-end justify-between gap-3 border-b p-5 dark:border-neutral-800">
+                        <div>
+                            <h2 className="font-semibold">Daftar SPB</h2>
+                            <p className="text-xs text-muted-foreground">
+                                Filter gudang mengikuti Worksite/Kapal SPB.
+                            </p>
+                        </div>
+                        <WarehouseFilter
+                            warehouses={warehouses}
+                            value={filters.warehouse_id}
+                            href={procurementIndex().url}
+                        />
                     </div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full text-sm">

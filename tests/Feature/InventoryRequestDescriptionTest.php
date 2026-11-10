@@ -10,7 +10,7 @@ uses(RefreshDatabase::class);
 
 test('an inventory request requires a description and makes it available to admins', function () {
     $user = User::factory()->create(['role' => 'user']);
-    $admin = User::factory()->create(['role' => 'admin']);
+    $admin = User::factory()->create(['role' => 'super_admin']);
     $warehouse = Warehouse::factory()->create();
     $admin->warehouses()->attach($warehouse);
     $user->warehouses()->attach($warehouse);

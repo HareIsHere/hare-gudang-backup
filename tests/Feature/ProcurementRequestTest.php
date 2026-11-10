@@ -418,7 +418,10 @@ test('all assigned SPB approvers can view the request while unrelated users cann
     $secondAcknowledger = User::factory()->create(['role' => 'user']);
     $finalApprover = User::factory()->create(['role' => 'admin']);
     $unrelatedUser = User::factory()->create(['role' => 'user']);
+    $worksite = Worksite::factory()->create();
+    $warehouse = Warehouse::factory()->create(['worksite_id' => $worksite->id]);
     $procurementRequest = ProcurementRequest::factory()->create([
+        'worksite_id' => $worksite->id,
         'requester_id' => $creator->id,
         'status' => 'awaiting_review',
         'examiner_id' => $examiner->id,
@@ -428,6 +431,7 @@ test('all assigned SPB approvers can view the request while unrelated users cann
     ]);
 
     foreach ([$creator, $examiner, $firstAcknowledger, $secondAcknowledger, $finalApprover] as $viewer) {
+        $viewer->warehouses()->attach($warehouse);
         $this->actingAs($viewer)
             ->get(route('procurement.index'))
             ->assertInertia(fn (Assert $page) => $page
@@ -436,6 +440,7 @@ test('all assigned SPB approvers can view the request while unrelated users cann
             );
     }
 
+    $unrelatedUser->warehouses()->attach($warehouse);
     $this->actingAs($unrelatedUser)
         ->get(route('procurement.index'))
         ->assertInertia(fn (Assert $page) => $page->has('requests', 0));

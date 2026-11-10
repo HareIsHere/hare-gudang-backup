@@ -49,11 +49,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::patch('/items/{item}/category', [ItemController::class, 'updateCategory'])->name('items.update-category');
         Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
 
-        Route::get('/requests', [InventoryRequestController::class, 'adminIndex'])->name('requests.index');
-        Route::patch('/requests/{inventoryRequest}/status', [InventoryRequestController::class, 'updateStatus'])->name('requests.update-status');
-        Route::delete('/requests/{id}', [InventoryRequestController::class, 'destroy'])->name('requests.destroy');
-
-        Route::get('/mutations', [InventoryMutationController::class, 'index'])->name('mutations.index');
+        Route::middleware('super_admin')->group(function () {
+            Route::get('/requests', [InventoryRequestController::class, 'adminIndex'])->name('requests.index');
+            Route::patch('/requests/{inventoryRequest}/status', [InventoryRequestController::class, 'updateStatus'])->name('requests.update-status');
+            Route::delete('/requests/{id}', [InventoryRequestController::class, 'destroy'])->name('requests.destroy');
+            Route::get('/mutations', [InventoryMutationController::class, 'index'])->name('mutations.index');
+        });
 
         Route::post('/warehouses/assign', [WarehouseController::class, 'assignUser'])->name('warehouses.assign');
         Route::post('/warehouses/remove-user', [WarehouseController::class, 'removeUser'])->name('warehouses.remove-user');
@@ -71,7 +72,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Feature Master routes
-    Route::middleware(['verified', 'admin'])->prefix('master')->name('master.')->group(function () {
+    Route::middleware(['verified', 'super_admin'])->prefix('master')->name('master.')->group(function () {
         Route::redirect('/', '/master/worksites/categories')->name('index');
         Route::redirect('worksites', '/master/worksites/categories')->name('worksites.index');
         Route::redirect('projects', '/master/projects/data')->name('projects.index');
